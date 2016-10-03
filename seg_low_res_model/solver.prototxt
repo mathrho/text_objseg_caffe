@@ -3,7 +3,7 @@ train_net: "./seg_low_res_model/proto_train.prototxt"
 max_iter: 30000
 display: 500000 
 snapshot: 5000
-snapshot_prefix: "/x/dhpseth/text_objseg_caffe/snapshots/low_res_seg/"
+snapshot_prefix: "./snapshots/low_res_seg/"
 
 solver_type: ADAM
 base_lr: 0.001

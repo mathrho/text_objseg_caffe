@@ -13,10 +13,10 @@ class Config():
         self.mlp_hidden_dims = 500
 
         # Training Params
-        self.gpu_id = 7
+        self.gpu_id = 0
         self.max_iter = 25000
 
-        self.weights = '/x/dhpseth/text_objseg_caffe/snapshots/low_res_seg/_iter_25000.caffemodel'  # set as None if training from scratch
+        self.weights = './snapshots/low_res_seg/_iter_30000.caffemodel'  # set as None if training from scratch
         self.fix_vgg = True  # set as False if finetuning VGG net
         self.vgg_dropout = False
         self.mlp_dropout = False

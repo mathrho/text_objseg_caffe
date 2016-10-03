@@ -17,8 +17,8 @@ class Config():
 
 
         # Testing Params
-        self.gpu_id = 2 
-        self.pretrained_model = '/x/dhpseth/text_objseg_caffe/snapshots/high_res_seg/_iter_25000.caffemodel'
+        self.gpu_id = 0
+        self.pretrained_model = './snapshots/high_res_seg/_iter_25000.caffemodel'
         self.score_thresh = 1e-9
 
 
