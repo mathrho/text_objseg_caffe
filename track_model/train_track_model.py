@@ -3,7 +3,7 @@ import numpy as np
 import os
 import sys
 
-import det_model
+import track_model
 import train_config
 
 def compute_accuracy(scores, labels):
@@ -21,13 +21,13 @@ def compute_accuracy(scores, labels):
 
 
 def train(config):
-    with open('./det_model/proto_train.prototxt', 'w') as f:
-        f.write(str(det_model.generate_model('train', config)))
+    with open('./track_model/proto_train.prototxt', 'w') as f:
+        f.write(str(track_model.generate_model('train', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
 
-    solver = caffe.get_solver('./det_model/solver.prototxt')
+    solver = caffe.get_solver('./track_model/solver.prototxt')
     solver.net.copy_from(config.weights)
 
     cls_loss_avg = 0.0
