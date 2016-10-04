@@ -8,7 +8,7 @@ import caffe
 import json
 from tqdm import tqdm
 
-import det_model
+import track_model
 import test_config
 
 from util import processing_tools, im_processing, text_processing, eval_tools
@@ -18,20 +18,20 @@ from util import processing_tools, im_processing, text_processing, eval_tools
 ################################################################################
 
 def inference(config):
-    with open('./det_model/fc8.prototxt', 'w') as f:
-        f.write(str(det_model.generate_fc8('val', config)))
-    with open('./det_model/scores.prototxt', 'w') as f:
-        f.write(str(det_model.generate_scores('val', config)))
+    with open('./track_model/fc8.prototxt', 'w') as f:
+        f.write(str(track_model.generate_fc8('val', config)))
+    with open('./track_model/scores.prototxt', 'w') as f:
+        f.write(str(track_model.generate_scores('val', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
 
     # Load pretrained model
-    fc8_net = caffe.Net('./det_model/fc8.prototxt',
+    fc8_net = caffe.Net('./track_model/fc8.prototxt',
                         config.pretrained_model,
                         caffe.TEST)
 
-    scores_net = caffe.Net('./det_model/scores.prototxt',
+    scores_net = caffe.Net('./track_model/scores.prototxt',
                            config.pretrained_model,
                            caffe.TEST)
 
@@ -97,7 +97,7 @@ def inference(config):
         if im.ndim == 2:
             im = np.tile(im[:, :, np.newaxis], (1, 1, 3))
         imcrop_val[:num_proposal, ...] = im_processing.crop_bboxes_subtract_mean(
-            im, bbox_proposals, config.input_H, det_model.channel_mean)
+            im, bbox_proposals, config.input_H, track_model.channel_mean)
         imcrop_val_trans = imcrop_val.transpose((0, 3, 1, 2))
 
         # Extract bounding box features from proposals

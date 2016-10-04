@@ -350,7 +350,7 @@ def generate_scores(split, config):
     #                              reshape_param=dict(shape=dict(dim=[-1, config.D_im])))
     #n.lstm_l2norm_resh = L.Reshape(n.lstm_l2norm,
     #                              reshape_param=dict(shape=dict(dim=[-1, config.D_text])))
-    n.img_l2norm_resh = L.Reshape(n.fc8,
+    n.img_l2norm_resh = L.Reshape(n.img_feature,
                                   reshape_param=dict(shape=dict(dim=[-1, 1000])))
     n.lstm_l2norm_resh = L.Reshape(n.lstm_feat,
                                   reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
