@@ -182,21 +182,9 @@ layer {
   }
 }
 layer {
-  name: "img_l2norm"
-  type: "L2Normalize"
-  bottom: "img_feature"
-  top: "img_l2norm"
-}
-layer {
-  name: "lstm_l2norm"
-  type: "L2Normalize"
-  bottom: "lstm_feat"
-  top: "lstm_l2norm"
-}
-layer {
   name: "img_l2norm_resh"
   type: "Reshape"
-  bottom: "img_l2norm"
+  bottom: "img_feature"
   top: "img_l2norm_resh"
   reshape_param {
     shape {
@@ -208,7 +196,7 @@ layer {
 layer {
   name: "lstm_l2norm_resh"
   type: "Reshape"
-  bottom: "lstm_l2norm"
+  bottom: "lstm_feat"
   top: "lstm_l2norm_resh"
   reshape_param {
     shape {
@@ -218,9 +206,34 @@ layer {
   }
 }
 layer {
+  name: "dyn_l1"
+  type: "InnerProduct"
+  bottom: "lstm_l2norm_resh"
+  top: "dyn_l1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 1008
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "dyn_sig1"
+  type: "Sigmoid"
+  bottom: "dyn_l1"
+  top: "dyn_l1"
+}
+layer {
   name: "feat_all"
   type: "Concat"
-  bottom: "lstm_l2norm_resh"
   bottom: "img_l2norm_resh"
   bottom: "spatial"
   top: "feat_all"
@@ -229,55 +242,10 @@ layer {
   }
 }
 layer {
-  name: "mlp_l1"
-  type: "InnerProduct"
-  bottom: "feat_all"
-  top: "mlp_l1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 500
-    weight_filler {
-      type: "xavier"
-    }
-  }
-}
-layer {
-  name: "mlp_relu1"
-  type: "ReLU"
-  bottom: "mlp_l1"
-  top: "mlp_l1"
-}
-layer {
-  name: "scores"
-  type: "InnerProduct"
-  bottom: "mlp_l1"
-  top: "scores"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 1
-    weight_filler {
-      type: "xavier"
-    }
-  }
-}
-layer {
   name: "loss"
-  type: "SigmoidCrossEntropyLoss"
-  bottom: "scores"
+  type: "ContrastiveLoss"
+  bottom: "dyn_l1"
+  bottom: "feat_all"
   bottom: "label"
   top: "loss"
 }

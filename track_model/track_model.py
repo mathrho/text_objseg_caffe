@@ -215,7 +215,7 @@ def generate_model(split, config):
                                   reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
 
     # Dynamic conv filters
-    n.dyn_l1, n.dyn_sig1 = fc_sigmoid(n.lstm_l2norm_resh, 1002)
+    n.dyn_l1, n.dyn_sig1 = fc_sigmoid(n.lstm_l2norm_resh, 1000+8)
 
     # Concatenate
     #n.feat_all = L.Concat(n.lstm_l2norm_resh, n.img_l2norm_resh, n.spatial, concat_param=dict(axis=1))
@@ -351,12 +351,12 @@ def generate_scores(split, config):
     #n.lstm_l2norm_resh = L.Reshape(n.lstm_l2norm,
     #                              reshape_param=dict(shape=dict(dim=[-1, config.D_text])))
     n.img_l2norm_resh = L.Reshape(n.img_feature,
-                                  reshape_param=dict(shape=dict(dim=[-1, 1000])))
+                                  reshape_param=dict(shape=dict(dim=[-1, config.D_im])))
     n.lstm_l2norm_resh = L.Reshape(n.lstm_feat,
-                                  reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+                                  reshape_param=dict(shape=dict(dim=[-1, config.D_text])))
 
     # Dynamic conv filters
-    n.dyn_l1, n.dyn_sig1 = fc_sigmoid(n.lstm_l2norm_resh, 1002)
+    n.dyn_l1, n.dyn_sig1 = fc_sigmoid(n.lstm_l2norm_resh, 1000+8)
 
     # Concatenate
     #n.feat_all = L.Concat(n.lstm_l2norm_resh, n.img_l2norm_resh, n.spatial, concat_param=dict(axis=1))
