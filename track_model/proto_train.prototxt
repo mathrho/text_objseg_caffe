@@ -638,34 +638,10 @@ layer {
   }
 }
 layer {
-  name: "img_l2norm_resh"
-  type: "Reshape"
-  bottom: "fc8"
-  top: "img_l2norm_resh"
-  reshape_param {
-    shape {
-      dim: -1
-      dim: 1000
-    }
-  }
-}
-layer {
-  name: "lstm_l2norm_resh"
-  type: "Reshape"
-  bottom: "lstm_feat"
-  top: "lstm_l2norm_resh"
-  reshape_param {
-    shape {
-      dim: -1
-      dim: 1000
-    }
-  }
-}
-layer {
-  name: "dyn_l1"
+  name: "dyn_l"
   type: "InnerProduct"
-  bottom: "lstm_l2norm_resh"
-  top: "dyn_l1"
+  bottom: "lstm_feat"
+  top: "dyn_l"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -682,15 +658,33 @@ layer {
   }
 }
 layer {
-  name: "dyn_sig1"
+  name: "dyn_sig"
   type: "Sigmoid"
-  bottom: "dyn_l1"
-  top: "dyn_l1"
+  bottom: "dyn_l"
+  top: "dyn_l"
+}
+layer {
+  name: "dyn_sig_l2norm"
+  type: "L2Normalize"
+  bottom: "dyn_l"
+  top: "dyn_sig_l2norm"
+}
+layer {
+  name: "dyn_sig_l2norm_resh"
+  type: "Reshape"
+  bottom: "dyn_sig_l2norm"
+  top: "dyn_sig_l2norm_resh"
+  reshape_param {
+    shape {
+      dim: -1
+      dim: 1008
+    }
+  }
 }
 layer {
   name: "feat_all"
   type: "Concat"
-  bottom: "img_l2norm_resh"
+  bottom: "fc8"
   bottom: "spatial"
   top: "feat_all"
   concat_param {
@@ -698,10 +692,34 @@ layer {
   }
 }
 layer {
-  name: "loss"
-  type: "ContrastiveLoss"
-  bottom: "dyn_l1"
+  name: "feat_all_l2norm"
+  type: "L2Normalize"
   bottom: "feat_all"
+  top: "feat_all_l2norm"
+}
+layer {
+  name: "feat_all_l2norm_resh"
+  type: "Reshape"
+  bottom: "feat_all_l2norm"
+  top: "feat_all_l2norm_resh"
+  reshape_param {
+    shape {
+      dim: -1
+      dim: 1008
+    }
+  }
+}
+layer {
+  name: "scores"
+  type: "DotProductSimilarity"
+  bottom: "dyn_sig_l2norm_resh"
+  bottom: "feat_all_l2norm_resh"
+  top: "scores"
+}
+layer {
+  name: "loss"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "scores"
   bottom: "label"
   top: "loss"
 }

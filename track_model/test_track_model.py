@@ -26,6 +26,7 @@ def inference(config):
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
 
+    # import ipdb; ipdb.set_trace()
     # Load pretrained model
     fc8_net = caffe.Net('./track_model/fc8.prototxt',
                         config.pretrained_model,

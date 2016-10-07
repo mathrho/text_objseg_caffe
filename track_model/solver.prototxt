@@ -1,4 +1,4 @@
-train_net: "./det_model/proto_train.prototxt"
+train_net: "./track_model/proto_train.prototxt"
 
 max_iter: 30000
 display: 500000 
