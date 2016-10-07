@@ -21,7 +21,7 @@ class Config():
 
         # Testing Params
         self.gpu_id = 0
-        self.pretrained_model = './snapshots/det/_iter_25000.caffemodel'
+        self.pretrained_model = './snapshots/track/_iter_25000.caffemodel'
 
         self.correct_iou_thresh = 0.5
         self.use_nms = False
