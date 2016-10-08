@@ -22,7 +22,7 @@ def compute_accuracy(scores, labels):
 
 def train(config):
     with open('./track_model/proto_train.prototxt', 'w') as f:
-        f.write(str(track_model.generate_model('train', config)))
+        f.write(str(track_model_mlp.generate_model('train', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
