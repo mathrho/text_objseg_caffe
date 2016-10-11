@@ -7,7 +7,7 @@ import ast
 
 import train_config
 import test_config
-import track_model
+import track_model_dyn_relu
 
 config = train_config.Config()
 test_config = test_config.Config()
