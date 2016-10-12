@@ -166,12 +166,14 @@ def inference(config):
     for n_eval_num in range(len(eval_bbox_num_list)):
         result_str += 'recall@%s = %f\n' % \
             (str(eval_bbox_num_list[n_eval_num]), bbox_correct_iou1[n_eval_num]/bbox_total)
+    print(result_str)
 
     print('Final results on the whole test set (IoU>=0.1)')
     result_str = ''
     for n_eval_num in range(len(eval_bbox_num_list)):
         result_str += 'recall@%s = %f\n' % \
             (str(eval_bbox_num_list[n_eval_num]), bbox_correct_iou2[n_eval_num]/bbox_total)
+    print(result_str)
 
 if __name__ == '__main__':
     config = test_config.Config()

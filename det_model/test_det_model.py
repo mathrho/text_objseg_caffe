@@ -73,6 +73,8 @@ def inference(config):
 
     eval_bbox_num_list = [1, 10, 100]
     bbox_correct = np.zeros(len(eval_bbox_num_list), dtype=np.int32)
+    bbox_correct_iou1 = np.zeros(len(eval_bbox_num_list), dtype=np.int32)
+    bbox_correct_iou2 = np.zeros(len(eval_bbox_num_list), dtype=np.int32)
     bbox_total = 0
 
     # Pre-allocate arrays
@@ -145,13 +147,31 @@ def inference(config):
                 eval_bbox_num = eval_bbox_num_list[n_eval_num]
                 bbox_correct[n_eval_num] += \
                     np.any(proposal_IoUs[top_ids[:eval_bbox_num]] >= config.correct_iou_thresh)
+                bbox_correct_iou1[n_eval_num] += \
+                    np.any(proposal_IoUs[top_ids[:eval_bbox_num]] >= 0.3)
+                bbox_correct_iou2[n_eval_num] += \
+                    np.any(proposal_IoUs[top_ids[:eval_bbox_num]] >= 0.1)
             bbox_total += 1
 
-    print('Final results on the whole test set')
+    print('Final results on the whole test set (IoU>=0.5)')
     result_str = ''
     for n_eval_num in range(len(eval_bbox_num_list)):
         result_str += 'recall@%s = %f\n' % \
             (str(eval_bbox_num_list[n_eval_num]), bbox_correct[n_eval_num]/bbox_total)
+    print(result_str)
+
+    print('Final results on the whole test set (IoU>=0.3)')
+    result_str = ''
+    for n_eval_num in range(len(eval_bbox_num_list)):
+        result_str += 'recall@%s = %f\n' % \
+            (str(eval_bbox_num_list[n_eval_num]), bbox_correct_iou1[n_eval_num]/bbox_total)
+    print(result_str)
+
+    print('Final results on the whole test set (IoU>=0.1)')
+    result_str = ''
+    for n_eval_num in range(len(eval_bbox_num_list)):
+        result_str += 'recall@%s = %f\n' % \
+            (str(eval_bbox_num_list[n_eval_num]), bbox_correct_iou2[n_eval_num]/bbox_total)
     print(result_str)
 
 if __name__ == '__main__':
