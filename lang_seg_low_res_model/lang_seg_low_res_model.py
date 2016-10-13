@@ -162,8 +162,8 @@ def generate_model(split, config):
     n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
 
     # Dynamic conv filters
-    n.dyn_l, n.dyn_relu = fc_sigmoid(n.lstm_feat, 1000+8)
-    n.lstm_dyn_kernel = L.Reshape(n.lstm_feat, reshape_param=dict(shape=dict(dim=[-1, 1, config.lstm_dim+8, 1, 1])))
+    n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
+    n.lstm_dyn_kernel = L.Reshape(n.dyn_sig, reshape_param=dict(shape=dict(dim=[-1, 1, config.lstm_dim+8, 1, 1])))
 
     # Tile LSTM feature
     #n.lstm_resh = L.Reshape(n.lstm_feat, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim, 1, 1])))
