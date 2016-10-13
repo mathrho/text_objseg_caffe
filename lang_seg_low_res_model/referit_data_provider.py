@@ -6,7 +6,7 @@ import Queue as queue
 import ast
 
 import train_config
-import seg_low_res_model as segmodel
+import lang_seg_low_res_model as segmodel
 from util.processing_tools import *
 
 config = train_config.Config()
