@@ -187,7 +187,7 @@ def generate_model(split, config):
     #    n.fcn_scores = conv(n.fcn_relu1, 1, ks=1, pad=0)
     
     # Dyn conv layer
-    n.dyn_scores = L.DynamicConvolution(n.feat_all, n.lstm_dyn_kernel,
+    n.fcn_scores = L.DynamicConvolution(n.feat_all, n.lstm_dyn_kernel,
                                         convolution_param=dict(num_output=1,
                                                                kernel_size=1,
                                                                stride=1,
@@ -195,8 +195,7 @@ def generate_model(split, config):
                                                                bias_term=False))
     
     # Loss Layer
-    #n.loss = L.SigmoidCrossEntropyLoss(n.fcn_scores, n.label)
-    n.loss = L.SigmoidCrossEntropyLoss(n.dyn_scores, n.label)
+    n.loss = L.SigmoidCrossEntropyLoss(n.fcn_scores, n.label)
 
     return n.to_proto()
 
