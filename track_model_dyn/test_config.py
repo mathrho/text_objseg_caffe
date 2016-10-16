@@ -20,7 +20,7 @@ class Config():
 
 
         # Testing Params
-        self.gpu_id = 0
+        self.gpu_id = 2
         self.pretrained_model = './snapshots/track_model_dyn_relu/_iter_25000.caffemodel'
 
         self.correct_iou_thresh = 0.5
