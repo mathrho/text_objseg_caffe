@@ -1,9 +1,9 @@
 train_net: "./track_model_dyn/proto_train.prototxt"
 
-max_iter: 50000
+max_iter: 30000
 display: 500000 
 snapshot: 5000
-snapshot_prefix: "./snapshots/track_model_dyn_relu/"
+snapshot_prefix: "./snapshots/track_model_dyn_sigmoid/"
 
 solver_type: ADAM
 base_lr: 0.001

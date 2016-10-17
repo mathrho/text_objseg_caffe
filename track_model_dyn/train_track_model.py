@@ -3,7 +3,7 @@ import numpy as np
 import os
 import sys
 
-import track_model_dyn_relu
+import track_model_dyn_sigmoid as trackmodel
 import train_config
 
 def compute_accuracy(scores, labels):
@@ -22,7 +22,7 @@ def compute_accuracy(scores, labels):
 
 def train(config):
     with open('./track_model_dyn/proto_train.prototxt', 'w') as f:
-        f.write(str(track_model_dyn_relu.generate_model('train', config)))
+        f.write(str(trackmodel.generate_model('train', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()

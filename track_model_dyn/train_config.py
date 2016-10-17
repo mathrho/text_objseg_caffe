@@ -14,7 +14,7 @@ class Config():
 
         # Training Params
         self.gpu_id = 0
-        self.max_iter = 50000
+        self.max_iter = 30000
 
         self.weights = './VGG_ILSVRC_16_layers.caffemodel'
         self.fix_vgg = True  # set False to finetune VGG net

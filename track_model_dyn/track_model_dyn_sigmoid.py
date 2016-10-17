@@ -205,15 +205,15 @@ def generate_model(split, config):
     # Dynamic conv filters
     # L2 Normalize image and language features
     n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
-    n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
-    n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
-                                     reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
+    #n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
+    #n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
+    #                                 reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
 
     # Concatenate
     n.feat_all = L.Concat(n.fc8, n.spatial, concat_param=dict(axis=1))
-    n.feat_all_l2norm = L.L2Normalize(n.feat_all)
-    n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
-                                      reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
+    #n.feat_all_l2norm = L.L2Normalize(n.feat_all)
+    #n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
+    #                                  reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
 
     # MLP Classifier over concatenated feature
     #n.mlp_l1, n.mlp_relu1 = fc_relu(n.feat_all, config.mlp_hidden_dims)
@@ -222,7 +222,8 @@ def generate_model(split, config):
     #    n.scores = fc(n.mlp_drop1, 1)
     #else:
     #    n.scores = fc(n.mlp_relu1, 1)
-    n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    #n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    n.scores = L.DotProductSimilarity(n.dyn_sig, n.feat_all)
 
     # Loss Layer
     # n.loss = L.ContrastiveLoss(n.dyn_sig1, n.feat_all, n.label)
@@ -343,15 +344,15 @@ def generate_scores(split, config):
     # Dynamic conv filters
     # L2 Normalize image and language features
     n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
-    n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
-    n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
-                                     reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
+    #n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
+    #n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
+    #                                 reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
 
     # Concatenate
     n.feat_all = L.Concat(n.img_feature, n.spatial, concat_param=dict(axis=1))
-    n.feat_all_l2norm = L.L2Normalize(n.feat_all)
-    n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
-                                      reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
+    #n.feat_all_l2norm = L.L2Normalize(n.feat_all)
+    #n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
+    #                                  reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
 
     # MLP Classifier over concatenated feature
     #n.mlp_l1, n.mlp_relu1 = fc_relu(n.feat_all, config.mlp_hidden_dims)
@@ -360,7 +361,8 @@ def generate_scores(split, config):
     #    n.scores = fc(n.mlp_drop1, 1)
     #else:
     #    n.scores = fc(n.mlp_relu1, 1)
-    n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    #n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    n.scores = L.DotProductSimilarity(n.dyn_sig, n.feat_all)
 
     # Loss Layer
     # n.loss = L.ContrastiveLoss(n.dyn_sig1, n.feat_all, n.label)
