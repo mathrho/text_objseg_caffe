@@ -13,7 +13,7 @@ class Config():
         self.mlp_hidden_dims = 500
 
         # Training Params
-        self.gpu_id = 0
+        self.gpu_id = 2
         self.max_iter = 30000
 
         self.weights = './VGG_ILSVRC_16_layers.caffemodel'
