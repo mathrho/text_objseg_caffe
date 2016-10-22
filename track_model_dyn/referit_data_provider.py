@@ -48,6 +48,7 @@ def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
         cont_val = create_cont(text_seq_val)
         imcrop_val = batch['imcrop_batch'].astype(np.float32) - trackmodel.channel_mean
         imcrop_val = imcrop_val.transpose((0, 3, 1, 2))
+        imcrop_val = imcrop_val[:, ::-1, :, :]
         spatial_batch_val = batch['spatial_batch']
         label_val = batch['label_batch'].astype(np.float32)
         data = { 'text_seq_batch': text_seq_val,
