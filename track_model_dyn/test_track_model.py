@@ -102,6 +102,7 @@ def inference(config):
         imcrop_val[:num_proposal, ...] = im_processing.crop_bboxes_subtract_mean(
             im, bbox_proposals, config.input_H, trackmodel.channel_mean)
         imcrop_val_trans = imcrop_val.transpose((0, 3, 1, 2))
+        imcrop_val_trans = imcrop_val_trans[:, ::-1, :, :]
 
         # Extract bounding box features from proposals
         spatial_val[:num_proposal, ...] = \
