@@ -83,6 +83,7 @@ def inference(config):
 
         imcrop_val[...] = processed_im.astype(np.float32) - seg_model.channel_mean
         imcrop_val_trans = imcrop_val.transpose((0, 3, 1, 2))
+        imcrop_val_trans = imcrop_val_trans[:, ::-1, :, :]
 
         # Extract spatial features
         spatial_val = processing_tools.generate_spatial_batch(config.N,

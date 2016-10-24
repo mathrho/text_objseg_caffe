@@ -47,6 +47,7 @@ def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
         cont_val = create_cont(text_seq_val)
         imcrop_val = batch['imcrop_batch'].astype(np.float32) - segmodel.channel_mean
         imcrop_val = imcrop_val.transpose((0, 3, 1, 2))
+        imcrop_val = imcrop_val[:, ::-1, :, :]
         spatial_val = generate_spatial_batch(config.N, config.featmap_H, config.featmap_W)
         spatial_val = spatial_val.transpose((0, 3, 1, 2))
         label_val = batch['label_coarse_batch'].astype(np.float32)
