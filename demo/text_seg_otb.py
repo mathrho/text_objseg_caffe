@@ -18,13 +18,12 @@ import otb_config
 from util import processing_tools, im_processing, text_processing
 
 from glob import glob, iglob
-from computeIOU import computeIOU
 import xml.etree.ElementTree as ET
 
 
 ####################################################
 # Load config
-config = demo_config.Config()
+config = otb_config.Config()
 
 # Load the model
 with open('./demo.prototxt', 'w') as f:
@@ -40,8 +39,8 @@ vocab_dict = text_processing.load_vocab_dict_from_file(config.vocab_file)
 
 ####################################################
 videofiles = sorted(glob('/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/*'))
-for videonfile in videofiles:
-    video = videonfile.split('/')[-1]
+for videofile in videofiles:
+    video = videofile.split('/')[-1]
     print(video)
 
     start_frame = 1
@@ -66,7 +65,7 @@ for videonfile in videofiles:
     gt_box[2] = gt_box[0] + gt_box[2] - 1;
     gt_box[3] = gt_box[1] + gt_box[3] - 1;
 
-    ###############################
+    # ###
     # Run on the input image and query text
     text_seq_val = np.zeros((config.T, config.N), dtype=np.float32)
     imcrop_val = np.zeros((config.N, config.input_H, config.input_W, 3), dtype=np.float32)
@@ -74,6 +73,8 @@ for videonfile in videofiles:
     # Preprocess image and text
     im = skimage.io.imread(im_file)
     processed_im = skimage.img_as_ubyte(im_processing.resize_and_pad(im, config.input_H, config.input_W))
+    if processed_im.ndim == 2:
+        processed_im = np.tile(processed_im[:, :, np.newaxis], (1, 1, 3))
     imcrop_val[0, :] = processed_im.astype(np.float32) - segmodel.channel_mean
     imcrop_val = imcrop_val.transpose((0, 3, 1, 2))
     imcrop_val = imcrop_val[:, ::-1, :, :]
