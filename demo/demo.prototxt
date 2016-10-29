@@ -656,56 +656,50 @@ layer {
   }
 }
 layer {
-  name: "lstm_resh"
-  type: "Reshape"
+  name: "dyn_l"
+  type: "InnerProduct"
   bottom: "lstm_feat"
-  top: "lstm_resh"
+  top: "dyn_l"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 1008
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "dyn_sig"
+  type: "Sigmoid"
+  bottom: "dyn_l"
+  top: "dyn_l"
+}
+layer {
+  name: "lstm_dyn_kernel"
+  type: "Reshape"
+  bottom: "dyn_l"
+  top: "lstm_dyn_kernel"
   reshape_param {
     shape {
       dim: -1
-      dim: 1000
+      dim: 1
+      dim: 1008
       dim: 1
       dim: 1
     }
   }
 }
 layer {
-  name: "lstm_tile_1"
-  type: "Tile"
-  bottom: "lstm_resh"
-  top: "lstm_tile_1"
-  tile_param {
-    axis: 2
-    tiles: 16
-  }
-}
-layer {
-  name: "lstm_tile_2"
-  type: "Tile"
-  bottom: "lstm_tile_1"
-  top: "lstm_tile_2"
-  tile_param {
-    axis: 3
-    tiles: 16
-  }
-}
-layer {
-  name: "img_l2norm"
-  type: "L2Normalize"
-  bottom: "fcn_fc8"
-  top: "img_l2norm"
-}
-layer {
-  name: "lstm_l2norm"
-  type: "L2Normalize"
-  bottom: "lstm_tile_2"
-  top: "lstm_l2norm"
-}
-layer {
   name: "feat_all"
   type: "Concat"
-  bottom: "lstm_l2norm"
-  bottom: "img_l2norm"
+  bottom: "fcn_fc8"
   bottom: "spatial"
   top: "feat_all"
   concat_param {
@@ -713,55 +707,17 @@ layer {
   }
 }
 layer {
-  name: "fcn_l1"
-  type: "Convolution"
-  bottom: "feat_all"
-  top: "fcn_l1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 500
-    pad: 0
-    kernel_size: 1
-    stride: 1
-    weight_filler {
-      type: "xavier"
-    }
-  }
-}
-layer {
-  name: "fcn_relu1"
-  type: "ReLU"
-  bottom: "fcn_l1"
-  top: "fcn_l1"
-}
-layer {
   name: "fcn_scores"
-  type: "Convolution"
-  bottom: "fcn_l1"
+  type: "DynamicConvolution"
+  bottom: "feat_all"
+  bottom: "lstm_dyn_kernel"
   top: "fcn_scores"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 1
+    bias_term: false
     pad: 0
     kernel_size: 1
     stride: 1
-    weight_filler {
-      type: "xavier"
-    }
   }
 }
 layer {
