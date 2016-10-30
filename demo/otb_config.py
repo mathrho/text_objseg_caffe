@@ -25,13 +25,6 @@ class Config():
         # Data Params
         self.data_provider = 'referit_data_provider'
         self.data_provider_layer = 'ReferitDataProviderLayer'
-
-        self.image_dir = '../referit/referit-dataset/images/'
-        self.mask_dir = '../referit/referit-dataset/mask/'
-        self.query_file = '../referit/data/referit_query_test.json'
-        self.bbox_file = '../referit/data/referit_bbox.json'
-        self.imcrop_file = '../referit/data/referit_imcrop.json'
-        self.imsize_file = '../referit/data/referit_imsize.json'
         self.vocab_file = '../referit/data/vocabulary_referit.txt'
 
 
