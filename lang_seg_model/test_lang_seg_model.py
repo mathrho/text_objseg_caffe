@@ -106,7 +106,7 @@ def inference(config):
             net.blobs['spatial'].data[...] = spatial_val
             net.blobs['label'].data[...] = processed_labels
 
-            import ipdb; ipdb.set_trace()
+            #import ipdb; ipdb.set_trace()
             net.forward()
             upscores = net.blobs['upscores'].data[...].copy()
             upscores = np.squeeze(upscores)
