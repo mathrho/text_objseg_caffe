@@ -53,7 +53,7 @@ def max_pool(bottom, ks=2, stride=2):
     return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
 
 
-################################################################################
+###############################################################################
 # Model Generation
 ###############################################################################
 
@@ -65,7 +65,7 @@ def generate_model(split, config):
                                                                layer=config.data_provider_layer,
                                                                param_str=mode_str,
                                                                ntop=5)
-
+    
     # the base net (VGG-16)
     n.conv1_1, n.relu1_1 = conv_relu(n.image, 64,
                                      fix_param=config.fix_vgg,
