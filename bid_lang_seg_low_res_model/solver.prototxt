@@ -1,6 +1,6 @@
 train_net: "./bid_lang_seg_low_res_model/proto_train.prototxt"
 
-max_iter: 35000
+max_iter: 50000
 display: 500000 
 snapshot: 5000
 snapshot_prefix: "./snapshots/bid_lang_low_res_seg/"

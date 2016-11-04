@@ -3,19 +3,19 @@ import numpy as np
 import os
 import sys
 
-import lang_seg_low_res_model as segmodel
+import bid_lang_seg_low_res_model as seg_model
 from util.processing_tools import *
 import train_config
 
 
 def train(config):
-    with open('./lang_seg_low_res_model/proto_train.prototxt', 'w') as f:
-        f.write(str(segmodel.generate_model('train', config)))
+    with open('./bid_lang_seg_low_res_model/proto_train.prototxt', 'w') as f:
+        f.write(str(seg_model.generate_model('train', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
 
-    solver = caffe.get_solver('./lang_seg_low_res_model/solver.prototxt')
+    solver = caffe.get_solver('./bid_lang_seg_low_res_model/solver.prototxt')
     if config.weights is not None:
         solver.net.copy_from(config.weights)
 

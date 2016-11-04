@@ -6,7 +6,7 @@ import Queue as queue
 import ast
 
 import train_config
-import lang_seg_low_res_model as segmodel
+import bid_lang_seg_low_res_model as seg_model
 from util.processing_tools import *
 
 config = train_config.Config()
@@ -45,7 +45,7 @@ def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
         # process the batch
         text_seq_val = batch['text_seq_batch']
         cont_val = create_cont(text_seq_val)
-        imcrop_val = batch['imcrop_batch'].astype(np.float32) - segmodel.channel_mean
+        imcrop_val = batch['imcrop_batch'].astype(np.float32) - seg_model.channel_mean
         imcrop_val = imcrop_val.transpose((0, 3, 1, 2))
         imcrop_val = imcrop_val[:, ::-1, :, :]
         spatial_val = generate_spatial_batch(config.N, config.featmap_H, config.featmap_W)
