@@ -1,0 +1,405 @@
+from __future__ import absolute_import, division, print_function
+
+import numpy as np
+import caffe
+from caffe import layers as L
+from caffe import params as P
+
+channel_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32)
+
+###############################################################################
+# Helper Methods
+###############################################################################
+
+def conv_relu(bottom, nout, ks=3, stride=1, pad=1, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                             num_output=nout, pad=pad, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                 num_output=nout, pad=pad, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                 num_output=nout, pad=pad,
+                                 param=mult, weight_filler=filler)
+    return conv, L.ReLU(conv, in_place=True)
+
+
+def conv(bottom, nout, ks=3, stride=1, pad=1, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                             num_output=nout, pad=pad, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                 num_output=nout, pad=pad, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            conv = L.Convolution(bottom, kernel_size=ks, stride=stride,
+                                 num_output=nout, pad=pad,
+                                 param=mult, weight_filler=filler)
+    return conv
+
+
+def fc_relu(bottom, nout, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            fc = L.InnerProduct(bottom, num_output=nout,
+                                param=mult, weight_filler=filler)
+    return fc, L.ReLU(fc, in_place=True)
+
+
+def fc_sigmoid(bottom, nout, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            fc = L.InnerProduct(bottom, num_output=nout,
+                                param=mult, weight_filler=filler)
+    return fc, L.Sigmoid(fc, in_place=True)
+
+
+def fc(bottom, nout, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            fc = L.InnerProduct(bottom, num_output=nout,
+                                param=mult, weight_filler=filler)
+    return fc
+            
+
+def max_pool(bottom, ks=2, stride=2):
+    return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
+
+
+################################################################################
+# Model Generation
+###############################################################################
+
+def generate_model(split, config):
+    n = caffe.NetSpec()
+    batch_size = config.N
+    mode_str = str(dict(split=split, batch_size=batch_size))
+    n.language, n.cont, n.image, n.spatial, n.label = L.Python(module=config.data_provider,
+                                                               layer=config.data_provider_layer,
+                                                               param_str=mode_str,
+                                                               ntop=5)
+
+    # the base net (VGG-16)
+    n.conv1_1, n.relu1_1 = conv_relu(n.image, 64,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv1_2, n.relu1_2 = conv_relu(n.relu1_1, 64,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool1 = max_pool(n.relu1_2)
+
+    n.conv2_1, n.relu2_1 = conv_relu(n.pool1, 128,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv2_2, n.relu2_2 = conv_relu(n.relu2_1, 128,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool2 = max_pool(n.relu2_2)
+
+    n.conv3_1, n.relu3_1 = conv_relu(n.pool2, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv3_2, n.relu3_2 = conv_relu(n.relu3_1, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv3_3, n.relu3_3 = conv_relu(n.relu3_2, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool3 = max_pool(n.relu3_3)
+
+    n.conv4_1, n.relu4_1 = conv_relu(n.pool3, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv4_2, n.relu4_2 = conv_relu(n.relu4_1, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv4_3, n.relu4_3 = conv_relu(n.relu4_2, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool4 = max_pool(n.relu4_3)
+
+    n.conv5_1, n.relu5_1 = conv_relu(n.pool4, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv5_2, n.relu5_2 = conv_relu(n.relu5_1, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv5_3, n.relu5_3 = conv_relu(n.relu5_2, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool5 = max_pool(n.relu5_3)
+
+    n.fc6, n.relu6 = fc_relu(n.pool5, 4096,
+                             fix_param=config.fix_vgg,
+                             finetune=(not config.fix_vgg))
+    
+    if config.vgg_dropout:
+        n.drop6 = L.Dropout(n.relu6, dropout_ratio=0.5, in_place=True)
+        n.fc7, n.relu7 = fc_relu(n.drop6, 4096,
+                                 fix_param=config.fix_vgg,
+                                 finetune=(not config.fix_vgg))
+        n.drop7 = L.Dropout(n.relu7, dropout_ratio=0.5, in_place=True)
+        n.fc8 = fc(n.drop7, 1000,
+                   fix_param=config.fix_vgg,
+                   finetune=(not config.fix_vgg))
+    else:
+        n.fc7, n.relu7 = fc_relu(n.relu6, 4096,
+                                 fix_param=config.fix_vgg,
+                                 finetune=(not config.fix_vgg))
+        n.fc8 = fc(n.relu7, 1000,
+                   fix_param=config.fix_vgg,
+                   finetune=(not config.fix_vgg))
+
+    # embedding
+    n.embed = L.Embed(n.language, input_dim=config.vocab_size,
+                      num_output=config.embed_dim,
+                      weight_filler=dict(type='uniform', min=-0.08, max=0.08))
+
+    # LSTM (T x N x D)
+    n.lstm = L.LSTM(n.embed, n.cont,
+                    recurrent_param=dict(num_output=config.lstm_dim,
+                                         weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                         bias_filler=dict(type='constant', value=0)))
+    #tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
+    #for i in range(config.T - 1):
+    #    n.__setattr__('slice'+str(i), tops[i])
+    #    n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
+    #n.lstm_out = tops[-1]
+    #n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+
+    # Bi-directional LSTM (T x N x D)
+    n.embed_back = L.Reverse(n.embed)
+    n.cont_back = L.Reverse(n.cont)
+    n.lstm_back = L.LSTM(n.embed_back, n.cont_back,
+                         recurrent_param=dict(num_output=config.lstm_dim,
+                                              weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                              bias_filler=dict(type='constant', value=0)))
+    n.lstm_back_rev = L.Reverse(lstm_back)
+
+    # concat hidden states from forwards and backwards
+    n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
+    # (T x N x 2D) -> (N x 2D x T) -> (N x 2D)
+    n.lstm_trans = L.Transpose(n.lstm_all, transpose_param=dict(dim=[1, 2, 0]))
+    n.lstm_out = L.Reduction(n.lstm_trans, reduction_param=dict(axis=2, operation=P.Reduction.MEAN))
+    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, 2*config.lstm_dim])))
+
+    # Dynamic conv filters
+    # L2 Normalize image and language features
+    n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
+    #n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
+    #n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
+    #                                 reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
+
+    # Concatenate
+    n.feat_all = L.Concat(n.fc8, n.spatial, concat_param=dict(axis=1))
+    #n.feat_all_l2norm = L.L2Normalize(n.feat_all)
+    #n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
+    #                                  reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
+
+    # MLP Classifier over concatenated feature
+    #n.mlp_l1, n.mlp_relu1 = fc_relu(n.feat_all, config.mlp_hidden_dims)
+    #if config.mlp_dropout:
+    #    n.mlp_drop1 = L.Dropout(n.mlp_relu1, dropout_ratio=0.5, in_place=True)
+    #    n.scores = fc(n.mlp_drop1, 1)
+    #else:
+    #    n.scores = fc(n.mlp_relu1, 1)
+    #n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    n.scores = L.DotProductSimilarity(n.dyn_sig, n.feat_all)
+
+    # Loss Layer
+    # n.loss = L.ContrastiveLoss(n.dyn_sig1, n.feat_all, n.label)
+    n.loss = L.SigmoidCrossEntropyLoss(n.scores, n.label)
+
+    return n.to_proto()
+
+
+def generate_fc8(split, config):
+
+    n = caffe.NetSpec()
+    batch_size = config.N
+    mode_str = str(dict(split=split, batch_size=batch_size))
+    n.language, n.cont, n.image, n.spatial, n.label = L.Python(module=config.data_provider,
+                                                               layer=config.data_provider_layer,
+                                                               param_str=mode_str,
+                                                               ntop=5)
+
+    # the base net (VGG-16)
+    n.conv1_1, n.relu1_1 = conv_relu(n.image, 64,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv1_2, n.relu1_2 = conv_relu(n.relu1_1, 64,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool1 = max_pool(n.relu1_2)
+
+    n.conv2_1, n.relu2_1 = conv_relu(n.pool1, 128,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv2_2, n.relu2_2 = conv_relu(n.relu2_1, 128,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool2 = max_pool(n.relu2_2)
+
+    n.conv3_1, n.relu3_1 = conv_relu(n.pool2, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv3_2, n.relu3_2 = conv_relu(n.relu3_1, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv3_3, n.relu3_3 = conv_relu(n.relu3_2, 256,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool3 = max_pool(n.relu3_3)
+
+    n.conv4_1, n.relu4_1 = conv_relu(n.pool3, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv4_2, n.relu4_2 = conv_relu(n.relu4_1, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv4_3, n.relu4_3 = conv_relu(n.relu4_2, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool4 = max_pool(n.relu4_3)
+
+    n.conv5_1, n.relu5_1 = conv_relu(n.pool4, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv5_2, n.relu5_2 = conv_relu(n.relu5_1, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.conv5_3, n.relu5_3 = conv_relu(n.relu5_2, 512,
+                                     fix_param=config.fix_vgg,
+                                     finetune=(not config.fix_vgg))
+    n.pool5 = max_pool(n.relu5_3)
+
+    n.fc6, n.relu6 = fc_relu(n.pool5, 4096,
+                             fix_param=config.fix_vgg,
+                             finetune=(not config.fix_vgg))
+    
+    if config.vgg_dropout:
+        n.drop6 = L.Dropout(n.relu6, dropout_ratio=0.5, in_place=True)
+        n.fc7, n.relu7 = fc_relu(n.drop6, 4096,
+                                 fix_param=config.fix_vgg,
+                                 finetune=(not config.fix_vgg))
+        n.drop7 = L.Dropout(n.relu7, dropout_ratio=0.5, in_place=True)
+        n.fc8 = fc(n.drop7, 1000,
+                   fix_param=config.fix_vgg,
+                   finetune=(not config.fix_vgg))
+    else:
+        n.fc7, n.relu7 = fc_relu(n.relu6, 4096,
+                                 fix_param=config.fix_vgg,
+                                 finetune=(not config.fix_vgg))
+        n.fc8 = fc(n.relu7, 1000,
+                   fix_param=config.fix_vgg,
+                   finetune=(not config.fix_vgg))
+    return n.to_proto()
+
+
+def generate_scores(split, config):
+
+    n = caffe.NetSpec()
+    batch_size = config.N
+    mode_str = str(dict(split=split, batch_size=batch_size))
+    n.language, n.cont, n.img_feature, n.spatial, n.label = L.Python(module=config.data_provider,
+                                                                     layer='TossLayer',
+                                                                     param_str=mode_str,
+                                                                     ntop=5)
+    # embedding
+    n.embed = L.Embed(n.language, input_dim=config.vocab_size,
+                      num_output=config.embed_dim,
+                      weight_filler=dict(type='uniform', min=-0.08, max=0.08))
+
+    # LSTM (T x N x D)
+    n.lstm = L.LSTM(n.embed, n.cont,
+                    recurrent_param=dict(num_output=config.lstm_dim,
+                                         weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                         bias_filler=dict(type='constant', value=0)))
+    #tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
+    #for i in range(config.T - 1):
+    #    n.__setattr__('slice'+str(i), tops[i])
+    #    n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
+    #n.lstm_out = tops[-1]
+    #n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+
+    # Bi-directional LSTM (T x N x D)
+    n.embed_back = L.Reverse(n.embed)
+    n.cont_back = L.Reverse(n.cont)
+    n.lstm_back = L.LSTM(n.embed_back, n.cont_back,
+                         recurrent_param=dict(num_output=config.lstm_dim,
+                                              weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                              bias_filler=dict(type='constant', value=0)))
+    n.lstm_back_rev = L.Reverse(lstm_back)
+
+    # concat hidden states from forwards and backwards
+    n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
+    # (T x N x 2D) -> (N x 2D x T) -> (N x 2D)
+    n.lstm_trans = L.Transpose(n.lstm_all, transpose_param=dict(dim=[1, 2, 0]))
+    n.lstm_out = L.Reduction(n.lstm_trans, reduction_param=dict(axis=2, operation=P.Reduction.MEAN))
+    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, 2*config.lstm_dim])))
+
+    # Dynamic conv filters
+    # L2 Normalize image and language features
+    n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
+    #n.dyn_sig_l2norm = L.L2Normalize(n.dyn_sig)
+    #n.dyn_sig_l2norm_resh = L.Reshape(n.dyn_sig_l2norm,
+    #                                 reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim+8])))
+
+    # Concatenate
+    n.feat_all = L.Concat(n.img_feature, n.spatial, concat_param=dict(axis=1))
+    #n.feat_all_l2norm = L.L2Normalize(n.feat_all)
+    #n.feat_all_l2norm_resh = L.Reshape(n.feat_all_l2norm,
+    #                                  reshape_param=dict(shape=dict(dim=[-1, 1000+8])))
+
+    # MLP Classifier over concatenated feature
+    #n.mlp_l1, n.mlp_relu1 = fc_relu(n.feat_all, config.mlp_hidden_dims)
+    #if config.mlp_dropout:
+    #    n.mlp_drop1 = L.Dropout(n.mlp_relu1, dropout_ratio=0.5, in_place=True)
+    #    n.scores = fc(n.mlp_drop1, 1)
+    #else:
+    #    n.scores = fc(n.mlp_relu1, 1)
+    #n.scores = L.DotProductSimilarity(n.dyn_sig_l2norm_resh, n.feat_all_l2norm_resh)
+    n.scores = L.DotProductSimilarity(n.dyn_sig, n.feat_all)
+
+    # Loss Layer
+    # n.loss = L.ContrastiveLoss(n.dyn_sig1, n.feat_all, n.label)
+    n.loss = L.SigmoidCrossEntropyLoss(n.scores, n.label)
+
+    return n.to_proto()
+
+
