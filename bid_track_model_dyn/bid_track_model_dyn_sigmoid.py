@@ -209,7 +209,7 @@ def generate_model(split, config):
                          recurrent_param=dict(num_output=config.lstm_dim,
                                               weight_filler=dict(type='uniform', min=-0.08, max=0.08),
                                               bias_filler=dict(type='constant', value=0)))
-    n.lstm_back_rev = L.Reverse(lstm_back)
+    n.lstm_back_rev = L.Reverse(n.lstm_back)
 
     # concat hidden states from forwards and backwards
     n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
@@ -364,7 +364,7 @@ def generate_scores(split, config):
                          recurrent_param=dict(num_output=config.lstm_dim,
                                               weight_filler=dict(type='uniform', min=-0.08, max=0.08),
                                               bias_filler=dict(type='constant', value=0)))
-    n.lstm_back_rev = L.Reverse(lstm_back)
+    n.lstm_back_rev = L.Reverse(n.lstm_back)
 
     # concat hidden states from forwards and backwards
     n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
