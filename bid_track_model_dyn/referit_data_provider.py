@@ -7,7 +7,7 @@ import ast
 
 import train_config
 import test_config
-import track_model_dyn_sigmoid as trackmodel
+import bid_track_model_dyn_sigmoid as track_model
 
 config = train_config.Config()
 test_config = test_config.Config()
@@ -46,7 +46,7 @@ def run_prefetch(prefetch_queue, folder_name, prefix, num_batch, shuffle):
         # process the batch
         text_seq_val = batch['text_seq_batch']
         cont_val = create_cont(text_seq_val)
-        imcrop_val = batch['imcrop_batch'].astype(np.float32) - trackmodel.channel_mean
+        imcrop_val = batch['imcrop_batch'].astype(np.float32) - track_model.channel_mean
         imcrop_val = imcrop_val.transpose((0, 3, 1, 2))
         imcrop_val = imcrop_val[:, ::-1, :, :]
         spatial_batch_val = batch['spatial_batch']
