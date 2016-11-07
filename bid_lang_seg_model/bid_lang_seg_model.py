@@ -149,18 +149,34 @@ def generate_model(split, config):
                       num_output=config.embed_dim,
                       weight_filler=dict(type='uniform', min=-0.08, max=0.08))
 
-    # LSTM
+    # LSTM (T x N x D)
     n.lstm = L.LSTM(n.embed, n.cont,
                     recurrent_param=dict(num_output=config.lstm_dim,
                                          weight_filler=dict(type='uniform', min=-0.08, max=0.08),
                                          bias_filler=dict(type='constant', value=0)))
-    tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
-    for i in range(config.T - 1):
-        n.__setattr__('slice'+str(i), tops[i])
-        n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
-    n.lstm_out = tops[-1]
-    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+    #tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
+    #for i in range(config.T - 1):
+    #    n.__setattr__('slice'+str(i), tops[i])
+    #    n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
+    #n.lstm_out = tops[-1]
+    #n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
 
+    # Bi-directional LSTM (T x N x D)
+    n.embed_back = L.Reverse(n.embed)
+    n.cont_back = L.Reverse(n.cont)
+    n.lstm_back = L.LSTM(n.embed_back, n.cont_back,
+                         recurrent_param=dict(num_output=config.lstm_dim,
+                                              weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                              bias_filler=dict(type='constant', value=0)))
+    n.lstm_back_rev = L.Reverse(n.lstm_back)
+
+    # concat hidden states from forwards and backwards
+    n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
+    # (T x N x 2D) -> (N x 2D x T) -> (N x 2D)
+    n.lstm_trans = L.Transpose(n.lstm_all, transpose_param=dict(dim=[1, 2, 0]))
+    n.lstm_out = L.Reduction(n.lstm_trans, reduction_param=dict(axis=2, operation=P.Reduction.MEAN))
+    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, 2*config.lstm_dim])))
+    
     # Dynamic conv filters
     n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
     n.lstm_dyn_kernel = L.Reshape(n.dyn_sig, reshape_param=dict(shape=dict(dim=[-1, 1, config.lstm_dim+8, 1, 1])))

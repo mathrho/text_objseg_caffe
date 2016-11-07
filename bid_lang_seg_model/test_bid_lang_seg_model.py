@@ -8,7 +8,7 @@ import caffe
 import json
 from tqdm import tqdm
 
-import lang_seg_model as segmodel
+import bid_lang_seg_model as seg_model
 import test_config
 
 from util import processing_tools, im_processing, text_processing, eval_tools
@@ -19,14 +19,14 @@ from util.io import load_referit_gt_mask as load_gt_mask
 ################################################################################
 
 def inference(config):
-    with open('./lang_seg_model/test.prototxt', 'w') as f:
-        f.write(str(segmodel.generate_model('val', config)))
+    with open('./bid_lang_seg_model/test.prototxt', 'w') as f:
+        f.write(str(seg_model.generate_model('val', config)))
 
     caffe.set_device(config.gpu_id)
     caffe.set_mode_gpu()
 
     # Load pretrained model
-    net = caffe.Net('./lang_seg_model/test.prototxt',
+    net = caffe.Net('./bid_lang_seg_model/test.prototxt',
                     config.pretrained_model,
                     caffe.TEST)
 
@@ -81,7 +81,7 @@ def inference(config):
         if processed_im.ndim == 2:
             processed_im = np.tile(processed_im[:, :, np.newaxis], (1, 1, 3))
 
-        imcrop_val[...] = processed_im.astype(np.float32) - segmodel.channel_mean
+        imcrop_val[...] = processed_im.astype(np.float32) - seg_model.channel_mean
         imcrop_val_trans = imcrop_val.transpose((0, 3, 1, 2))
         imcrop_val_trans = imcrop_val_trans[:, ::-1, :, :]
 

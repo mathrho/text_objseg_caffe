@@ -1,9 +1,9 @@
-train_net: "./lang_seg_model/proto_train.prototxt"
+train_net: "./bid_lang_seg_model/proto_train.prototxt"
 
-max_iter: 25000
+max_iter: 35000
 display: 500000 
 snapshot: 5000
-snapshot_prefix: "./snapshots/lang_high_res_seg/"
+snapshot_prefix: "./snapshots/bid_lang_high_res_seg/"
 
 solver_type: ADAM
 base_lr: 0.0001

@@ -176,7 +176,7 @@ def generate_model(split, config):
     n.lstm_trans = L.Transpose(n.lstm_all, transpose_param=dict(dim=[1, 2, 0]))
     n.lstm_out = L.Reduction(n.lstm_trans, reduction_param=dict(axis=2, operation=P.Reduction.MEAN))
     n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, 2*config.lstm_dim])))
-
+    
     # Dynamic conv filters
     n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
     n.lstm_dyn_kernel = L.Reshape(n.dyn_sig, reshape_param=dict(shape=dict(dim=[-1, 1, config.lstm_dim+8, 1, 1])))
