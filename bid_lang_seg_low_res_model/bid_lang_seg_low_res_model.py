@@ -11,6 +11,22 @@ channel_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32)
 # Helper Methods
 ###############################################################################
 
+def fc_sigmoid(bottom, nout, fix_param=False, finetune=False):
+    if fix_param:
+        mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
+        fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+    else:
+        if finetune:
+            mult = [dict(lr_mult=0.1, decay_mult=1), dict(lr_mult=0.2, decay_mult=0)]
+            fc = L.InnerProduct(bottom, num_output=nout, param=mult)
+        else:
+            mult = [dict(lr_mult=1, decay_mult=1), dict(lr_mult=2, decay_mult=0)]
+            filler = dict(type='xavier')
+            fc = L.InnerProduct(bottom, num_output=nout,
+                                param=mult, weight_filler=filler)
+    return fc, L.Sigmoid(fc, in_place=True)
+
+
 def conv_relu(bottom, nout, ks=3, stride=1, pad=1, fix_param=False, finetune=False):
     if fix_param:
         mult = [dict(lr_mult=0, decay_mult=0), dict(lr_mult=0, decay_mult=0)]
@@ -53,7 +69,7 @@ def max_pool(bottom, ks=2, stride=2):
     return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
 
 
-###############################################################################
+################################################################################
 # Model Generation
 ###############################################################################
 
@@ -65,7 +81,7 @@ def generate_model(split, config):
                                                                layer=config.data_provider_layer,
                                                                param_str=mode_str,
                                                                ntop=5)
-    
+
     # the base net (VGG-16)
     n.conv1_1, n.relu1_1 = conv_relu(n.image, 64,
                                      fix_param=config.fix_vgg,
@@ -133,37 +149,66 @@ def generate_model(split, config):
                       num_output=config.embed_dim,
                       weight_filler=dict(type='uniform', min=-0.08, max=0.08))
 
-    # LSTM
+    # LSTM (T x N x D)
     n.lstm = L.LSTM(n.embed, n.cont,
                     recurrent_param=dict(num_output=config.lstm_dim,
                                          weight_filler=dict(type='uniform', min=-0.08, max=0.08),
                                          bias_filler=dict(type='constant', value=0)))
-    tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
-    for i in range(config.T - 1):
-        n.__setattr__('slice'+str(i), tops[i])
-        n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
-    n.lstm_out = tops[-1]
-    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+    #tops = L.Slice(n.lstm, ntop=config.T, slice_param=dict(axis=0))
+    #for i in range(config.T - 1):
+    #    n.__setattr__('slice'+str(i), tops[i])
+    #    n.__setattr__('silence'+str(i), L.Silence(tops[i], ntop=0))
+    #n.lstm_out = tops[-1]
+    #n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim])))
+
+    # Bi-directional LSTM (T x N x D)
+    n.embed_back = L.Reverse(n.embed)
+    n.cont_back = L.Reverse(n.cont)
+    n.lstm_back = L.LSTM(n.embed_back, n.cont_back,
+                         recurrent_param=dict(num_output=config.lstm_dim,
+                                              weight_filler=dict(type='uniform', min=-0.08, max=0.08),
+                                              bias_filler=dict(type='constant', value=0)))
+    n.lstm_back_rev = L.Reverse(n.lstm_back)
+
+    # concat hidden states from forwards and backwards
+    n.lstm_all = L.Concat(n.lstm, n.lstm_back_rev, concat_param=dict(axis=2))
+    # (T x N x 2D) -> (N x 2D x T) -> (N x 2D)
+    n.lstm_trans = L.Transpose(n.lstm_all, transpose_param=dict(dim=[1, 2, 0]))
+    n.lstm_out = L.Reduction(n.lstm_trans, reduction_param=dict(axis=2, operation=P.Reduction.MEAN))
+    n.lstm_feat = L.Reshape(n.lstm_out, reshape_param=dict(shape=dict(dim=[-1, 2*config.lstm_dim])))
+    
+    # Dynamic conv filters
+    n.dyn_l, n.dyn_sig = fc_sigmoid(n.lstm_feat, 1000+8)
+    n.lstm_dyn_kernel = L.Reshape(n.dyn_sig, reshape_param=dict(shape=dict(dim=[-1, 1, config.lstm_dim+8, 1, 1])))
 
     # Tile LSTM feature
-    n.lstm_resh = L.Reshape(n.lstm_feat, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim, 1, 1])))
-    n.lstm_tile_1 = L.Tile(n.lstm_resh, axis=2, tiles=config.featmap_H)
-    n.lstm_tile_2 = L.Tile(n.lstm_tile_1, axis=3, tiles=config.featmap_W)
+    #n.lstm_resh = L.Reshape(n.lstm_feat, reshape_param=dict(shape=dict(dim=[-1, config.lstm_dim, 1, 1])))
+    #n.lstm_tile_1 = L.Tile(n.lstm_resh, axis=2, tiles=config.featmap_H)
+    #n.lstm_tile_2 = L.Tile(n.lstm_tile_1, axis=3, tiles=config.featmap_W)
 
     # L2 Normalize image and language features
-    n.img_l2norm = L.L2Normalize(n.fcn_fc8)
-    n.lstm_l2norm = L.L2Normalize(n.lstm_tile_2)
+    #n.img_l2norm = L.L2Normalize(n.fcn_fc8)
+    #n.lstm_l2norm = L.L2Normalize(n.lstm_tile_2)
 
     # Concatenate
-    n.feat_all = L.Concat(n.lstm_l2norm, n.img_l2norm, n.spatial, concat_param=dict(axis=1))
+    #n.feat_all = L.Concat(n.lstm_l2norm, n.img_l2norm, n.spatial, concat_param=dict(axis=1))
+    n.feat_all = L.Concat(n.fcn_fc8, n.spatial, concat_param=dict(axis=1))
 
     # MLP Classifier over concatenated feature
-    n.fcn_l1, n.fcn_relu1 = conv_relu(n.feat_all, config.mlp_hidden_dims, ks=1, pad=0)
-    if config.mlp_dropout:
-        n.fcn_drop1 = L.Dropout(n.fcn_relu1, dropout_ratio=0.5, in_place=True)
-        n.fcn_scores = conv(n.fcn_drop1, 1, ks=1, pad=0)
-    else:
-        n.fcn_scores = conv(n.fcn_relu1, 1, ks=1, pad=0)
+    #n.fcn_l1, n.fcn_relu1 = conv_relu(n.feat_all, config.mlp_hidden_dims, ks=1, pad=0)
+    #if config.mlp_dropout:
+    #    n.fcn_drop1 = L.Dropout(n.fcn_relu1, dropout_ratio=0.5, in_place=True)
+    #    n.fcn_scores = conv(n.fcn_drop1, 1, ks=1, pad=0)
+    #else:
+    #    n.fcn_scores = conv(n.fcn_relu1, 1, ks=1, pad=0)
+    
+    # Dyn conv layer
+    n.fcn_scores = L.DynamicConvolution(n.feat_all, n.lstm_dyn_kernel,
+                                        convolution_param=dict(num_output=1,
+                                                               kernel_size=1,
+                                                               stride=1,
+                                                               pad=0,
+                                                               bias_term=False))
     
     # Loss Layer
     n.loss = L.SigmoidCrossEntropyLoss(n.fcn_scores, n.label)

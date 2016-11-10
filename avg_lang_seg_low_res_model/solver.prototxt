@@ -1,9 +1,9 @@
-train_net: "./track_model_dyn/proto_train.prototxt"
+train_net: "./avg_lang_seg_low_res_model/proto_train.prototxt"
 
 max_iter: 30000
-display: 500000
+display: 500000 
 snapshot: 5000
-snapshot_prefix: "./snapshots/track_model_dyn_sigmoid/"
+snapshot_prefix: "./snapshots/avg_lang_low_res_seg/"
 
 solver_type: ADAM
 base_lr: 0.001
@@ -11,4 +11,5 @@ momentum: 0.9
 momentum2: 0.999
 weight_decay: 0.0005
 lr_policy: "fixed"
+
 

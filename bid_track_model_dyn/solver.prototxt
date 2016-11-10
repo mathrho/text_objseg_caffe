@@ -1,9 +1,9 @@
-train_net: "./track_model_dyn/proto_train.prototxt"
+train_net: "./bid_track_model_dyn/proto_train.prototxt"
 
-max_iter: 30000
+max_iter: 40000
 display: 500000
 snapshot: 5000
-snapshot_prefix: "./snapshots/track_model_dyn_sigmoid/"
+snapshot_prefix: "./snapshots/bid_track_model_dyn_sigmoid/"
 
 solver_type: ADAM
 base_lr: 0.001
