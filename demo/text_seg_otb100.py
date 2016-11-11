@@ -27,7 +27,7 @@ import xml.etree.ElementTree as ET
 ####################################################
 def sigmoid(x):
     #return 1/(1+np.exp(-x))
-    reutrn expit(x)
+    return expit(x)
 
 def resize_and_pad(im, input_h, input_w):
     # Resize and pad im to input_h x input_w size
