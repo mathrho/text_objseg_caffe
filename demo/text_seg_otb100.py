@@ -80,7 +80,7 @@ net = caffe.Net('./lang_seg_model.prototxt', config.pretrained_model, caffe.TEST
 vocab_dict = text_processing.load_vocab_dict_from_file(config.vocab_file)
 
 ####################################################
-videofiles = sorted(glob('/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/*'))
+videofiles = sorted(glob('/home/zhenyang/Workspace/data/OTB-100-othervideos/*'))
 for videofile in videofiles:
     video = videofile.split('/')[-1]
     print(video)
@@ -90,16 +90,25 @@ for videofile in videofiles:
         start_frame_id = 300
     elif video == 'Tiger1':
         start_frame_id = 6
+    elif video == 'BlurCar1':
+        start_frame_id = 247
+    elif video == 'BlurCar3':
+        start_frame_id = 3
+    elif video == 'BlurCar4':
+        start_frame_id = 18
+
+    if video == 'ClifBar':
+        continue
 
     # First, select query
-    query_file = '../OTB50/OTB50Entities/' + video + '.xml'
+    query_file = '../OTB100/OTB100Entities/' + video + '.xml'
     root = ET.parse( query_file ).getroot()
     # querier = prettify( querier )
-    print(root[3][1].text)
-    query = root[3][1].text
+    print(root[2][1].text)
+    query = root[2][1].text
 
     # Second, get gt box
-    gt_file = '/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/' + video + '/groundtruth_rect.txt'
+    gt_file = '/home/zhenyang/Workspace/data/OTB-100-othervideos/' + video + '/groundtruth_rect.txt'
     try:
         gt_boxes = np.loadtxt(gt_file, delimiter=',').astype(int)
     except ValueError:
@@ -110,10 +119,13 @@ for videofile in videofiles:
 
     counter = 0
     results = np.zeros((num_frames, 4), np.int)
-    #frames = sorted(glob('/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/'+video+'/img/*.jpg'))
+    #frames = sorted(glob('/home/zhenyang/Workspace/data/OTB-100-othervideos/'+video+'/img/*.jpg'))
     #for fi in range(start_frame_id, num_frames+start_frame_id):
     for fi in range(start_frame_id, 1+start_frame_id):
-        im_file = '/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/' + video + '/img/%04d.jpg' % (fi,)
+        if video == 'Board':
+            im_file = '/home/zhenyang/Workspace/data/OTB-100-othervideos/' + video + '/img/%05d.jpg' % (fi,)
+        else:
+            im_file = '/home/zhenyang/Workspace/data/OTB-100-othervideos/' + video + '/img/%04d.jpg' % (fi,)            
         
         ###############################
         # Run on the input image and query text
@@ -164,9 +176,12 @@ for videofile in videofiles:
         print( str(np.sum(prediction)) )
 
         # save the results
-        if not os.path.exists('../results/results_lang_seg_sigmoid_thresh0.5/'+video):
-            os.makedirs('../results/results_lang_seg_sigmoid_thresh0.5/'+video)
-        filename = '../results/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
+        if not os.path.exists('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video):
+            os.makedirs('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video)
+        if video == 'Board':
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%05d.jpg' % (fi,)
+        else:
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
         # Visualize the segmentation result
