@@ -164,9 +164,9 @@ for videofile in videofiles:
         print( str(np.sum(prediction)) )
 
         # save the results
-        if not os.path.exists('../results/results_lang_seg_sigmoid_thresh0.2/'+video):
-            os.makedirs('../results/results_lang_seg_sigmoid_thresh0.2/'+video)
-        filename = '../results/results_lang_seg_sigmoid_thresh0.2/'+video+'/%04d.jpg' % (fi,)
+        if not os.path.exists('../results/results_lang_seg_sigmoid_thresh0.01/'+video):
+            os.makedirs('../results/results_lang_seg_sigmoid_thresh0.01/'+video)
+        filename = '../results/results_lang_seg_sigmoid_thresh0.01/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
         # Visualize the segmentation result
