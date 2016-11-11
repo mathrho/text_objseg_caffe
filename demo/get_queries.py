@@ -1,3 +1,14 @@
+from __future__ import absolute_import, division, print_function
+
+import os
+import sys
+import skimage.io
+import numpy as np
+import json
+
+from glob import glob, iglob
+import xml.etree.ElementTree as ET
+
 ####################################################
 videofiles = sorted(glob('/home/zhenyang/Workspace/data/OTB-100-othervideos/*'))
 for videofile in videofiles:
@@ -16,4 +27,4 @@ for videofile in videofiles:
 
     with open('../OTB100/OTB100Queries/' + video + '.txt', 'w') as fp:
         fp.write(query+'\n')
-    
+
