@@ -159,14 +159,14 @@ for videofile in videofiles:
         #print( str(np.sum(upscores)) )
         upscores = sigmoid(upscores)
         print( str(np.amax(upscores)) )
-        score_thresh = np.amax(upscores) * 0.001
+        score_thresh = np.amax(upscores) * 0.5
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
         print( str(np.sum(prediction)) )
 
         # save the results
-        if not os.path.exists('../results/results_lang_seg_sigmoid_thresh0.001/'+video):
-            os.makedirs('../results/results_lang_seg_sigmoid_thresh0.001/'+video)
-        filename = '../results/results_lang_seg_sigmoid_thresh0.001/'+video+'/%04d.jpg' % (fi,)
+        if not os.path.exists('../results/results_lang_seg_sigmoid_thresh0.5/'+video):
+            os.makedirs('../results/results_lang_seg_sigmoid_thresh0.5/'+video)
+        filename = '../results/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
         # Visualize the segmentation result
