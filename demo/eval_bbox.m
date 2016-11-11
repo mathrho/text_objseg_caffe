@@ -29,6 +29,8 @@ for vi = 1:numel(videos)
     frames = {f(:).name}';
     frames(ismember(frames,{'.','..'})) = [];
 
+    frames = frames(1);
+
     pred_boxes = zeros(numel(frames), 4);
     rest_boxes = zeros(numel(frames), 4);
     oas = zeros(1, numel(frames));
