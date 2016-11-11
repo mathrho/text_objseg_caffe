@@ -156,6 +156,7 @@ for videofile in videofiles:
         #upscores = sigmoid(upscores)
         #upscores = upscores*255
         #prediction = im_processing.resize_and_crop(upscores.astype(np.int32), *im.shape[:2])
+        print( str(np.sum(upscores)) )
         score_thresh = np.amax(upscores) * 0.1
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
         print( str(np.sum(prediction)) )
