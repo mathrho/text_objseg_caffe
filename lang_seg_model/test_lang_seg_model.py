@@ -93,7 +93,7 @@ def inference(config):
 
         if not os.path.exists('../results/referit/results_lang_seg_model/'+imname):
             os.makedirs('../results/referit/results_lang_seg_model/'+imname)
-        fp = open('../results/referit/results_lang_seg_model/'+imname+'/query.txt')
+        fp = open('../results/referit/results_lang_seg_model/'+imname+'/query.txt', 'w')
         for imcrop_name, _, description in flat_query_dict[imname]:
             mask = load_gt_mask(config.mask_dir + imcrop_name + '.mat').astype(np.float32)
             labels = (mask > 0)
