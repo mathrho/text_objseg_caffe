@@ -131,7 +131,7 @@ def inference(config):
             # save the results
             filename = './results/referit/results_lang_seg_model/'+imname[:-4]+'/%s.jpg' % (imcrop_name,)
             plt.imsave(filename, np.array(predicts.astype(np.bool)), cmap=cm.gray)
-            fp.write(description+'\n')
+            fp.write(description.encode('ascii','ignore')+'\n')
 
         fp.close()
 
