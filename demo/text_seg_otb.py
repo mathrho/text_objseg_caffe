@@ -108,9 +108,6 @@ for videofile in videofiles:
         gt_boxes = gt_boxes[5:, :]
     num_frames = gt_boxes.shape[0]
 
-    if not os.path.exists('../results/results_lang_seg/'+video):
-        os.makedirs('../results/results_lang_seg/'+video)
-
     counter = 0
     results = np.zeros((num_frames, 4), np.int)
     #frames = sorted(glob('/home/zhenyang/Workspace/data/Tracker_Benchmark_v1.0/'+video+'/img/*.jpg'))
@@ -163,6 +160,8 @@ for videofile in videofiles:
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
 
         # save the results
+        if not os.path.exists('../results/results_lang_seg_thresh0.1/'+video):
+            os.makedirs('../results/results_lang_seg_thresh0.1/'+video)
         filename = '../results/results_lang_seg_thresh0.1/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
