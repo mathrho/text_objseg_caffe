@@ -29,8 +29,7 @@ for vi = 1:numel(videos)
     frames = {f(:).name}';
     frames(ismember(frames,{'.','..'})) = [];
 
-    frames = frames(1);
-
+    %frames = frames(1);
     pred_boxes = zeros(numel(frames), 4);
     rest_boxes = zeros(numel(frames), 4);
     oas = zeros(1, numel(frames));
@@ -75,11 +74,11 @@ for vi = 1:numel(videos)
         oas(1, fr) = max_ov;
     end
 
-    %predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '_groundtruth_rect.txt'];
-    %dlmwrite(predBBoxFile, pred_boxes);
+    predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '_groundtruth_rect.txt'];
+    dlmwrite(predBBoxFile, pred_boxes);
 
-    %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/OTB100/lang_results/results_vgg16_lang_seg_fullconv/' video '_vgg16_lang_seg_fullconv.txt'];
-    %dlmwrite(restBBoxFile, rest_boxes);
+    restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/OTB100/lang_results/results_vgg16_lang_seg_fullconv/' video '_vgg16_lang_seg_fullconv.txt'];
+    dlmwrite(restBBoxFile, rest_boxes);
 
     oas_all{counter} = oas;
     counter = counter + 1;
