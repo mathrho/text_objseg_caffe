@@ -17,7 +17,7 @@ sys.path.append('../lang_seg_model')
 
 from lang_seg_model import lang_seg_model as segmodel
 from util import processing_tools, im_processing, text_processing, eval_tools
-import otb_config
+import otb100_config
 
 from glob import glob, iglob
 import xml.etree.ElementTree as ET
@@ -65,7 +65,7 @@ def crop_and_resize(im, crop_h, crop_w, scale):
 
 ####################################################   
 # Load config
-config = otb_config.Config()
+config = otb100_config.Config()
 
 # Load the model
 with open('./lang_seg_model.prototxt', 'w') as f:
