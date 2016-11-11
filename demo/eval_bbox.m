@@ -32,7 +32,7 @@ for vi = 1:numel(videos)
     pred_boxes = zeros(numel(frames), 4);
     rest_boxes = zeros(numel(frames), 4);
     oas = zeros(1, numel(frames));
-    for fr = 1:numel(frames)
+    for fr = 1:1 %numel(frames)
         im_name = frames{fr}(1:end-4);
         curHeatMapFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '/' im_name '.jpg'];
         curBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '/' im_name '.txt'];
@@ -69,15 +69,15 @@ for vi = 1:numel(videos)
         end
 
         rest_boxes(fr, :) = bebox;
-        pred_boxes(fr, :) = [bebox(1), bebox(2), bebox(3)-bebox(1)+1, bebox(4)-bebox(2)+1];
+        pred_boxes(fr, :) = [bebox(1), bebox(2), bebox(3)-bebox(1), bebox(4)-bebox(2)];
         oas(1, fr) = max_ov;
     end
 
-    predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '_groundtruth_rect.txt'];
-    dlmwrite(predBBoxFile, pred_boxes);
+    %predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture '/' video '_groundtruth_rect.txt'];
+    %dlmwrite(predBBoxFile, pred_boxes);
 
-    restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/OTB100/lang_results/results_vgg16_lang_seg_fullconv/' video '_vgg16_lang_seg_fullconv.txt'];
-    dlmwrite(restBBoxFile, rest_boxes);
+    %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/OTB100/lang_results/results_vgg16_lang_seg_fullconv/' video '_vgg16_lang_seg_fullconv.txt'];
+    %dlmwrite(restBBoxFile, rest_boxes);
 
     oas_all{counter} = oas;
     counter = counter + 1;
