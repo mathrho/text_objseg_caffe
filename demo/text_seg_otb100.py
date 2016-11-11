@@ -120,8 +120,8 @@ for videofile in videofiles:
     counter = 0
     results = np.zeros((num_frames, 4), np.int)
     #frames = sorted(glob('/home/zhenyang/Workspace/data/OTB-100-othervideos/'+video+'/img/*.jpg'))
-    #for fi in range(start_frame_id, num_frames+start_frame_id):
-    for fi in range(start_frame_id, 1+start_frame_id):
+    #for fi in range(start_frame_id, 1+start_frame_id):
+    for fi in range(start_frame_id, num_frames+start_frame_id):
         if video == 'Board':
             im_file = '/home/zhenyang/Workspace/data/OTB-100-othervideos/' + video + '/img/%05d.jpg' % (fi,)
         else:
@@ -176,12 +176,12 @@ for videofile in videofiles:
         print( str(np.sum(prediction)) )
 
         # save the results
-        if not os.path.exists('../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video):
-            os.makedirs('../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video)
+        if not os.path.exists('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video):
+            os.makedirs('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video)
         if video == 'Board':
-            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video+'/%05d.jpg' % (fi,)
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%05d.jpg' % (fi,)
         else:
-            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video+'/%04d.jpg' % (fi,)
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
         # Visualize the segmentation result
