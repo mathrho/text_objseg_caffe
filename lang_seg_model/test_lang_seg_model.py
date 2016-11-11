@@ -91,9 +91,9 @@ def inference(config):
                                                               config.featmap_W)
         spatial_val = spatial_val.transpose((0, 3, 1, 2))
 
-        if not os.path.exists('../results/referit/results_lang_seg_model/'+imname):
-            os.makedirs('../results/referit/results_lang_seg_model/'+imname)
-        fp = open('../results/referit/results_lang_seg_model/'+imname+'/query.txt', 'w')
+        if not os.path.exists('./results/referit/results_lang_seg_model/'+imname):
+            os.makedirs('./results/referit/results_lang_seg_model/'+imname)
+        fp = open('./results/referit/results_lang_seg_model/'+imname+'/query.txt', 'w')
         for imcrop_name, _, description in flat_query_dict[imname]:
             mask = load_gt_mask(config.mask_dir + imcrop_name + '.mat').astype(np.float32)
             labels = (mask > 0)
@@ -127,7 +127,7 @@ def inference(config):
             seg_total += 1
 
             # save the results
-            filename = '../results/referit/results_lang_seg_model/'+imname+'/%s.jpg' % (imcrop_name,)
+            filename = './results/referit/results_lang_seg_model/'+imname+'/%s.jpg' % (imcrop_name,)
             plt.imsave(filename, np.array(predicts.astype(np.bool)), cmap=cm.gray)
             fp.write(description+'\n')
 
