@@ -8,6 +8,8 @@ import caffe
 import json
 from tqdm import tqdm
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import lang_seg_model as segmodel
 import test_config
 
