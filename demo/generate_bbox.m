@@ -22,7 +22,7 @@ videos(ismember(videos,{'.','..'})) = [];
 
 for vi = 1:numel(videos)
     video = videos{vi}
-    f = dir(['../results/OTB100/results_lang_seg_sigmoid_thresh0.5/' video '/*.jpg');
+    f = dir(['../results/OTB100/results_lang_seg_sigmoid_thresh0.5/' video '/*.jpg']);
     frames = {f(:).name}';
     frames(ismember(frames,{'.','..'})) = [];
 
