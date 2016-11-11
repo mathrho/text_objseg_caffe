@@ -173,7 +173,7 @@ for videofile in videofiles:
         #print( str(np.sum(upscores)) )
         upscores = sigmoid(upscores)
         print( str(np.amax(upscores)) )
-        score_thresh = np.amax(upscores) * 0.4
+        score_thresh = np.amax(upscores) * 0.5
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
         print( str(np.sum(prediction)) )
 
