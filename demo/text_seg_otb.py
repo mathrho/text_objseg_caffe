@@ -158,7 +158,7 @@ for videofile in videofiles:
         #prediction = im_processing.resize_and_crop(upscores.astype(np.int32), *im.shape[:2])
         score_thresh = np.amax(upscores) * 0.1
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
-        np.sum(prediction)
+        print np.sum(prediction)
 
         # save the results
         if not os.path.exists('../results/results_lang_seg_thresh0.1/'+video):
