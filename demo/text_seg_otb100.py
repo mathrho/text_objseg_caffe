@@ -173,17 +173,17 @@ for videofile in videofiles:
         #print( str(np.sum(upscores)) )
         upscores = sigmoid(upscores)
         print( str(np.amax(upscores)) )
-        score_thresh = np.amax(upscores) * 0.5
+        score_thresh = np.amax(upscores) * 0.4
         prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
         print( str(np.sum(prediction)) )
 
         # save the results
-        if not os.path.exists('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video):
-            os.makedirs('../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video)
+        if not os.path.exists('../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video):
+            os.makedirs('../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video)
         if video == 'Board':
-            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%05d.jpg' % (fi,)
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video+'/%05d.jpg' % (fi,)
         else:
-            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
+            filename = '../results/OTB100/results_lang_seg_sigmoid_thresh0.4/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
         # Visualize the segmentation result
