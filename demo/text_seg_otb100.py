@@ -15,6 +15,7 @@ import matplotlib.cm as cm
 sys.path.append('../')
 sys.path.append('../lang_seg_model')
 
+from scipy.special import expit
 from lang_seg_model import lang_seg_model as segmodel
 from util import processing_tools, im_processing, text_processing, eval_tools
 import otb100_config
@@ -25,7 +26,8 @@ import xml.etree.ElementTree as ET
 
 ####################################################
 def sigmoid(x):
-    return 1/(1+np.exp(-x))
+    #return 1/(1+np.exp(-x))
+    reutrn expit(x)
 
 def resize_and_pad(im, input_h, input_w):
     # Resize and pad im to input_h x input_w size
@@ -42,7 +44,7 @@ def resize_and_pad(im, input_h, input_w):
     else:
         new_im = np.zeros((input_h, input_w), dtype=resized_im.dtype)
     new_im[pad_h:pad_h+resized_h, pad_w:pad_w+resized_w, ...] = resized_im
-
+    
     return new_im, scale, pad_h, pad_w
 
 def crop_and_resize(im, crop_h, crop_w, scale):
