@@ -31,8 +31,8 @@ query_ids = 0:1;
 for vi = 1:numel(videos)
     video = videos{vi}
     for qi = query_ids
-        start_frame_id = video_starts(v);
-        end_frame_id = video_ends(v);
+        start_frame_id = video_starts(vi);
+        end_frame_id = video_ends(vi);
 
         gtBBoxFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/groundtruth_rect.txt'];
         gt_bboxes = dlmread(gtBBoxFile);
