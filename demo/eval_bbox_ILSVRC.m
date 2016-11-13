@@ -44,7 +44,8 @@ for vi = 1:numel(videos)
         pred_boxes = zeros(num_frame, 4);
         rest_boxes = zeros(num_frame, 4);
         oas = zeros(1, num_frame);
-        for fr = start_frame_id:end_frame_id
+        for fr = [start_frame_id]
+        %for fr = start_frame_id:end_frame_id
             im_name = sprintf('%06d', fr);
             curHeatMapFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.jpg'];
             curBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.txt'];
@@ -91,8 +92,8 @@ for vi = 1:numel(videos)
 
         oas = oas(1, sum(gt_bboxes(:, 1:4), 2)>0);
 
-        predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
-        dlmwrite(predBBoxFile, pred_boxes);
+        %predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
+        %dlmwrite(predBBoxFile, pred_boxes);
 
         %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/lang_results/results_vgg16_lang_seg_fullconv/' video '_query_' num2str(qi) '_vgg16_lang_seg_fullconv.txt'];
         %dlmwrite(restBBoxFile, rest_boxes);
