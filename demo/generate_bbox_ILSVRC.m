@@ -20,37 +20,37 @@ isub = [d(:).isdir]; %# returns logical vector
 videos = {d(isub).name}';
 videos(ismember(videos,{'.','..'})) = [];
 
-query_ids = 0:1;
+%query_ids = 0:1;
 for vi = 1:numel(videos)
     video = videos{vi}
     video_name = video(1:end-8);
-    for qi = query_ids
-        f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '/*.jpg']);
-        frames = {f(:).name}';
-        frames(ismember(frames,{'.','..'})) = [];
+    %for qi = query_ids
+    f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '/*.jpg']);
+    frames = {f(:).name}';
+    frames(ismember(frames,{'.','..'})) = [];
 
-        fprintf('%d, %d\n', qi, numel(frames));
-        for fr = 1:numel(frames)
-            im_name = frames{fr}(1:end-4);
-            curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.jpg'];
-            curImgFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video_name '/img/' im_name '.jpg'];
-            curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.txt'];
-            system(['bboxgenerator/./dt_box ' curHeatMapFile ' ' curParaThreshold ' ' curBBoxFile]);
-        end
-
-        %boxData = dlmread(curBBoxFile);
-        %boxData_formulate = [boxData(1:4:end)' boxData(2:4:end)' boxData(1:4:end)'+boxData(3:4:end)' boxData(2:4:end)'+boxData(4:4:end)'];
-        %boxData_formulate = [min(boxData_formulate(:,1),boxData_formulate(:,3)),min(boxData_formulate(:,2),boxData_formulate(:,4)),max(boxData_formulate(:,1),boxData_formulate(:,3)),max(boxData_formulate(:,2),boxData_formulate(:,4))];
-
-        %curHeatMap = imread(curHeatMapFile);
-        %curHeatMap = imresize(curHeatMap,[height_original weight_original]);
-
-        %subplot(1,2,1),hold off, imshow(curImgFile);
-        %hold on
-        %for i=1:size(boxData_formulate,1)
-        %    curBox = boxData_formulate(i,:);
-        %    rectangle('Position',[curBox(1) curBox(2) curBox(3)-curBox(1) curBox(4)-curBox(2)],'EdgeColor',[1 0 0]);
-        %end
-        %subplot(1,2,2),imagesc(curHeatMap);
+    fprintf('%d\n', numel(frames));
+    for fr = 1:numel(frames)
+        im_name = frames{fr}(1:end-4);
+        curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.jpg'];
+        curImgFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video_name '/img/' im_name '.jpg'];
+        curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.txt'];
+        system(['bboxgenerator/./dt_box ' curHeatMapFile ' ' curParaThreshold ' ' curBBoxFile]);
     end
+
+    %boxData = dlmread(curBBoxFile);
+    %boxData_formulate = [boxData(1:4:end)' boxData(2:4:end)' boxData(1:4:end)'+boxData(3:4:end)' boxData(2:4:end)'+boxData(4:4:end)'];
+    %boxData_formulate = [min(boxData_formulate(:,1),boxData_formulate(:,3)),min(boxData_formulate(:,2),boxData_formulate(:,4)),max(boxData_formulate(:,1),boxData_formulate(:,3)),max(boxData_formulate(:,2),boxData_formulate(:,4))];
+
+    %curHeatMap = imread(curHeatMapFile);
+    %curHeatMap = imresize(curHeatMap,[height_original weight_original]);
+
+    %subplot(1,2,1),hold off, imshow(curImgFile);
+    %hold on
+    %for i=1:size(boxData_formulate,1)
+    %    curBox = boxData_formulate(i,:);
+    %    rectangle('Position',[curBox(1) curBox(2) curBox(3)-curBox(1) curBox(4)-curBox(2)],'EdgeColor',[1 0 0]);
+    %end
+    %subplot(1,2,2),imagesc(curHeatMap);
+    %end
 end
