@@ -15,7 +15,7 @@
 bbox_threshold = [20, 100, 110]; % parameters for the bbox generator
 curParaThreshold = [num2str(bbox_threshold(1)) ' ' num2str(bbox_threshold(2)) ' ' num2str(bbox_threshold(3))];
 
-signiture = 'results_lang_seg_sigmoid_thresh0.5';
+signiture = 'results_lang_seg_sigmoid_thresh0.6';
 vf = fopen('/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/test.txt');
 % file, trackid, start_frame, end_frame
 video_info = textscan(vf,'%s %d %d %d', 'Delimiter', ' ');
