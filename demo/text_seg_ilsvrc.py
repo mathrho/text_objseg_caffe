@@ -175,15 +175,15 @@ for v, videofile in enumerate(videofiles):
             #print( str(np.sum(upscores)) )
             upscores = sigmoid(upscores)
             print( str(np.amax(upscores)) )
-            score_thresh = np.amax(upscores) * 0.4
+            score_thresh = np.amax(upscores) * 0.5
             prediction = im_processing.resize_and_crop(upscores>score_thresh, *im.shape[:2]).astype(np.bool)
             print( str(np.sum(prediction)) )
 
             # save the results
             video_prefix = video+'_query_'+str(q)
-            if not os.path.exists('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/'+video_prefix):
-                os.makedirs('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/'+video_prefix)
-            filename = '../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/'+video_prefix+'/%06d.jpg' % (fi,)
+            if not os.path.exists('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/'+video_prefix):
+                os.makedirs('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/'+video_prefix)
+            filename = '../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/'+video_prefix+'/%06d.jpg' % (fi,)
             plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
             # Visualize the segmentation result
