@@ -24,6 +24,7 @@ query_ids = 0:1;
 for vi = 1:numel(videos)
     video = videos{vi}
     for qi = query_ids
+        qi
         f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '_query_' num2str(qi) '/*.jpg']);
         frames = {f(:).name}';
         frames(ismember(frames,{'.','..'})) = [];
