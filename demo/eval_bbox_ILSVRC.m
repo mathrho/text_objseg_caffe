@@ -37,7 +37,7 @@ for vi = 1:numel(videos)
         gtBBoxFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/groundtruth_rect.txt'];
         gt_bboxes = dlmread(gtBBoxFile);
         num_frame = size(gt_bboxes, 1);
-        assert (end_frame_id - start_frame_id + 1) == num_frame
+        assert((end_frame_id - start_frame_id + 1) == num_frame);
 
         fprintf('%d %d\n', qi, num_frame);
 
