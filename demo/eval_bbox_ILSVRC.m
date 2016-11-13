@@ -16,10 +16,14 @@ bbox_threshold = [20, 100, 110]; % parameters for the bbox generator
 curParaThreshold = [num2str(bbox_threshold(1)) ' ' num2str(bbox_threshold(2)) ' ' num2str(bbox_threshold(3))];
 
 signiture = 'results_lang_seg_sigmoid_thresh0.4';
-d = dir(['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture  '/']);
-isub = [d(:).isdir]; %# returns logical vector
-videos = {d(isub).name}';
-videos(ismember(videos,{'.','..'})) = [];
+vf = fopen('/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/test.txt');
+% file, trackid, start_frame, end_frame
+video_info = textscan(vf,'%s %d %d %d', 'Delimiter', ' ');
+fclose(vf);
+
+videos = video_info{1};
+video_starts = video_info{2};
+video_ends = video_info{3};
 
 counter = 1;
 oas_all = {};
@@ -27,29 +31,31 @@ query_ids = 0:1;
 for vi = 1:numel(videos)
     video = videos{vi}
     for qi = query_ids
-        f = dir(['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' ... 
-                 signiture  '/' video '_query_' num2str(qi) '/*.jpg']);
-        frames = {f(:).name}';
-        frames(ismember(frames,{'.','..'})) = [];
+        start_frame_id = video_starts(v);
+        end_frame_id = video_ends(v);
+        num_frame = end_frame_id - start_frame_id + 1;
+        fprintf('%d %d\n', qi, num_frame);
 
-        %frames = frames(1);
-        pred_boxes = zeros(numel(frames), 4);
-        rest_boxes = zeros(numel(frames), 4);
-        oas = zeros(1, numel(frames));
-        for fr = 1:numel(frames)
-            im_name = frames{fr}(1:end-4);
+        gtBBoxFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/groundtruth_rect.txt'];
+        gt_bboxes = dlmread(gtBBoxFile);
+
+
+        pred_boxes = zeros(num_frame, 4);
+        rest_boxes = zeros(num_frame, 4);
+        oas = zeros(1, num_frame);
+        for fr = start_frame_id:end_frame_id
+            im_name = sprintf('%6d', fr);
             curHeatMapFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.jpg'];
             curBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.txt'];
-            gtBBoxFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/groundtruth_rect.txt'];
+            
+            % remove last frame ids
+            gt_box = gt_bboxes(fr, 1:4);
+            gt_box(3) = gt_box(1) + gt_box(3);
+            gt_box(4) = gt_box(2) + gt_box(4);
 
             boxData = dlmread(curBBoxFile);
             boxData_formulate = [boxData(1:4:end)' boxData(2:4:end)' boxData(1:4:end)'+boxData(3:4:end)' boxData(2:4:end)'+boxData(4:4:end)'];
             boxData_formulate = [min(boxData_formulate(:,1),boxData_formulate(:,3)),min(boxData_formulate(:,2),boxData_formulate(:,4)),max(boxData_formulate(:,1),boxData_formulate(:,3)),max(boxData_formulate(:,2),boxData_formulate(:,4))];
-
-            gt_bboxes = dlmread(gtBBoxFile);
-            gt_box = gt_bboxes(fr, 1:4);
-            gt_box(3) = gt_box(1) + gt_box(3);
-            gt_box(4) = gt_box(2) + gt_box(4);
 
             num_box = size(boxData_formulate, 1);
             if num_box > 1

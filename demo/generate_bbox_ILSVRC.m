@@ -15,7 +15,7 @@
 bbox_threshold = [20, 100, 110]; % parameters for the bbox generator
 curParaThreshold = [num2str(bbox_threshold(1)) ' ' num2str(bbox_threshold(2)) ' ' num2str(bbox_threshold(3))];
 
-d = dir('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/');
+d = dir('../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/');
 isub = [d(:).isdir]; %# returns logical vector
 videos = {d(isub).name}';
 videos(ismember(videos,{'.','..'})) = [];
@@ -25,16 +25,16 @@ for vi = 1:numel(videos)
     video = videos{vi}
     video_name = video(1:end-8);
     %for qi = query_ids
-    f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '/*.jpg']);
+    f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/' video  '/*.jpg']);
     frames = {f(:).name}';
     frames(ismember(frames,{'.','..'})) = [];
 
     fprintf('%d\n', numel(frames));
     for fr = 1:numel(frames)
         im_name = frames{fr}(1:end-4);
-        curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.jpg'];
+        curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/' video '/' im_name '.jpg'];
         curImgFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video_name '/img/' im_name '.jpg'];
-        curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.txt'];
+        curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.5/' video '/' im_name '.txt'];
         system(['bboxgenerator/./dt_box ' curHeatMapFile ' ' curParaThreshold ' ' curBBoxFile]);
     end
 
