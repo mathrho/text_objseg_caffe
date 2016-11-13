@@ -23,18 +23,18 @@ videos(ismember(videos,{'.','..'})) = [];
 query_ids = 0:1;
 for vi = 1:numel(videos)
     video = videos{vi}
+    video_name = video(1:end-8);
     for qi = query_ids
-        qi
-        f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '_query_' num2str(qi) '/*.jpg']);
+        f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '/*.jpg']);
         frames = {f(:).name}';
         frames(ismember(frames,{'.','..'})) = [];
-        numel(frames)
 
+        fprintf('%d, %d', qi, numel(frames));
         for fr = 1:numel(frames)
             im_name = frames{fr}(1:end-4);
-            curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '_query_' num2str(qi) '/' im_name '.jpg'];
-            curImgFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/img/' im_name '.jpg'];
-            curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '_query_' num2str(qi) '/' im_name '.txt'];
+            curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.jpg'];
+            curImgFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video_name '/img/' im_name '.jpg'];
+            curBBoxFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.txt'];
             system(['bboxgenerator/./dt_box ' curHeatMapFile ' ' curParaThreshold ' ' curBBoxFile]);
         end
 
