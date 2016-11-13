@@ -28,6 +28,7 @@ for vi = 1:numel(videos)
         f = dir(['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video  '_query_' num2str(qi) '/*.jpg']);
         frames = {f(:).name}';
         frames(ismember(frames,{'.','..'})) = [];
+        numel(frames)
 
         for fr = 1:numel(frames)
             im_name = frames{fr}(1:end-4);
