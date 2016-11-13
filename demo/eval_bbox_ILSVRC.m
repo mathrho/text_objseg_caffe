@@ -39,13 +39,16 @@ for vi = 1:numel(videos)
         num_frame = size(gt_bboxes, 1);
         assert((end_frame_id - start_frame_id + 1) == num_frame);
 
+        num_frame = 1;
+        end_frame_id = start_frame_id;
+
+
         fprintf('%d %d\n', qi, num_frame);
 
         pred_boxes = zeros(num_frame, 4);
         rest_boxes = zeros(num_frame, 4);
         oas = zeros(1, num_frame);
-        for fr = [start_frame_id]
-        %for fr = start_frame_id:end_frame_id
+        for fr = start_frame_id:end_frame_id
             im_name = sprintf('%06d', fr);
             curHeatMapFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.jpg'];
             curBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.txt'];
