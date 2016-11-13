@@ -29,7 +29,7 @@ for vi = 1:numel(videos)
         frames = {f(:).name}';
         frames(ismember(frames,{'.','..'})) = [];
 
-        fprintf('%d, %d', qi, numel(frames));
+        fprintf('%d, %d\n', qi, numel(frames));
         for fr = 1:numel(frames)
             im_name = frames{fr}(1:end-4);
             curHeatMapFile = ['../results/ILSVRC/results_lang_seg_sigmoid_thresh0.4/' video '/' im_name '.jpg'];
