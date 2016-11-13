@@ -33,12 +33,13 @@ for vi = 1:numel(videos)
     for qi = query_ids
         start_frame_id = video_starts(v);
         end_frame_id = video_ends(v);
-        num_frame = end_frame_id - start_frame_id + 1;
-        fprintf('%d %d\n', qi, num_frame);
 
         gtBBoxFile = ['/home/zhenyang/Workspace/data/ImageNetTracker/' video '/groundtruth_rect.txt'];
         gt_bboxes = dlmread(gtBBoxFile);
+        num_frame = size(gt_bboxes, 1);
+        assert (end_frame_id - start_frame_id + 1) == num_frame
 
+        fprintf('%d %d\n', qi, num_frame);
 
         pred_boxes = zeros(num_frame, 4);
         rest_boxes = zeros(num_frame, 4);
@@ -48,8 +49,9 @@ for vi = 1:numel(videos)
             curHeatMapFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.jpg'];
             curBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '/' im_name '.txt'];
             
+            frame_counter = fr - start_frame_id + 1;
             % remove last frame ids
-            gt_box = gt_bboxes(fr, 1:4);
+            gt_box = gt_bboxes(frame_counter, 1:4);
             gt_box(3) = gt_box(1) + gt_box(3);
             gt_box(4) = gt_box(2) + gt_box(4);
 
@@ -67,7 +69,11 @@ for vi = 1:numel(videos)
             bebox = boxData_formulate(1, 1:4);
             for bb = 1:num_box
                 pred_box = boxData_formulate(bb, 1:4);
-                ov = IoU(pred_box, gt_box);
+                if sum(gt_box) == 0
+                    ov = 0;
+                else
+                    ov = IoU(pred_box, gt_box);
+                end
             
                 box_sz = (pred_box(3) - pred_box(1))*(pred_box(4) - pred_box(2));
                 if box_sz > max_sz
@@ -78,20 +84,22 @@ for vi = 1:numel(videos)
                 %max_ov = max(ov, max_ov);
             end
 
-            rest_boxes(fr, :) = bebox;
-            pred_boxes(fr, :) = [bebox(1), bebox(2), bebox(3)-bebox(1), bebox(4)-bebox(2)];
-            oas(1, fr) = max_ov;
+            rest_boxes(frame_counter, :) = bebox;
+            pred_boxes(frame_counter, :) = [bebox(1), bebox(2), bebox(3)-bebox(1), bebox(4)-bebox(2)];
+            oas(1, frame_counter) = max_ov;
         end
+
+        oas(1, sum(gt_bboxes(:, 1:4), 2)==0) = [];
+
+        predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
+        dlmwrite(predBBoxFile, pred_boxes);
+
+        %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/lang_results/results_vgg16_lang_seg_fullconv/' video '_query_' num2str(qi) '_vgg16_lang_seg_fullconv.txt'];
+        %dlmwrite(restBBoxFile, rest_boxes);
+
+        oas_all{counter} = oas;
+        counter = counter + 1;
     end
-
-    predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
-    dlmwrite(predBBoxFile, pred_boxes);
-
-    %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/lang_results/results_vgg16_lang_seg_fullconv/' video '_query_' num2str(qi) '_vgg16_lang_seg_fullconv.txt'];
-    %dlmwrite(restBBoxFile, rest_boxes);
-
-    oas_all{counter} = oas;
-    counter = counter + 1;
 end
 
 ovs = cat(2, oas_all{:});
