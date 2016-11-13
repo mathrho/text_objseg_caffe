@@ -116,6 +116,8 @@ for v, videofile in enumerate(videofiles):
         gt_boxes = np.loadtxt(gt_file, delimiter=',').astype(int)
     except ValueError:
         gt_boxes = np.loadtxt(gt_file).astype(int)
+    # remove frame ids
+    gt_boxes = gt_boxes[:, :4]
     num_frames = gt_boxes.shape[0]
     assert (end_frame_id-start_frame_id+1) == num_frames
 
