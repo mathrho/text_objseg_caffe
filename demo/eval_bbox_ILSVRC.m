@@ -15,7 +15,7 @@
 bbox_threshold = [20, 100, 110]; % parameters for the bbox generator
 curParaThreshold = [num2str(bbox_threshold(1)) ' ' num2str(bbox_threshold(2)) ' ' num2str(bbox_threshold(3))];
 
-signiture = 'results_lang_seg_sigmoid_thresh0.6';
+signiture = 'results_lang_seg_sigmoid_thresh0.4';
 vf = fopen('/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/test.txt');
 % file, trackid, start_frame, end_frame
 video_info = textscan(vf,'%s %d %d %d', 'Delimiter', ' ');
@@ -39,9 +39,8 @@ for vi = 1:numel(videos)
         num_frame = size(gt_bboxes, 1);
         assert((end_frame_id - start_frame_id + 1) == num_frame);
 
-        num_frame = 1;
-        end_frame_id = start_frame_id;
-
+        %num_frame = 1;
+        %end_frame_id = start_frame_id;
 
         fprintf('%d %d\n', qi, num_frame);
 
@@ -97,11 +96,11 @@ for vi = 1:numel(videos)
             oas = oas(1, sum(gt_bboxes(:, 1:4), 2)>0);
         end
 
-        %predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
-        %dlmwrite(predBBoxFile, pred_boxes);
+        predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
+        dlmwrite(predBBoxFile, pred_boxes);
 
-        %restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/lang_results/results_vgg16_lang_seg_fullconv/' video '_query_' num2str(qi) '_vgg16_lang_seg_fullconv.txt'];
-        %dlmwrite(restBBoxFile, rest_boxes);
+        restBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_obj_track/ILSVRC/lang_results/results_vgg16_lang_seg_fullconv/' video '_query_' num2str(qi) '_vgg16_lang_seg_fullconv.txt'];
+        dlmwrite(restBBoxFile, rest_boxes);
 
         oas_all{counter} = oas;
         counter = counter + 1;
