@@ -15,11 +15,12 @@
 bbox_threshold = [20, 100, 110]; % parameters for the bbox generator
 curParaThreshold = [num2str(bbox_threshold(1)) ' ' num2str(bbox_threshold(2)) ' ' num2str(bbox_threshold(3))];
 
-signiture = 'results_lang_seg_sigmoid_thresh0.4';
-d = dir(['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture  '/']);
-isub = [d(:).isdir]; %# returns logical vector
-videos = {d(isub).name}';
-videos(ismember(videos,{'.','..'})) = [];
+signiture = 'results_lang_seg_sigmoid_thresh0.5';
+%d = dir(['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/OTB100/' signiture  '/']);
+%isub = [d(:).isdir]; %# returns logical vector
+%videos = {d(isub).name}';
+%videos(ismember(videos,{'.','..'})) = [];
+videos = load('data2stratis_OTB48.mat', 'seqnames');
 
 counter = 1;
 oas_all = {};
@@ -82,4 +83,5 @@ ovs = cat(2, oas_all{:});
 size(ovs)
 prec = mean(ovs)
 recall = sum(ovs > 0.5) / numel(ovs)
+save('first_target_IoU.mat', ovs);
 
