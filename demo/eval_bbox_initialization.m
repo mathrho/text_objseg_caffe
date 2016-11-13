@@ -20,7 +20,8 @@ signiture = 'results_lang_seg_sigmoid_thresh0.5';
 %isub = [d(:).isdir]; %# returns logical vector
 %videos = {d(isub).name}';
 %videos(ismember(videos,{'.','..'})) = [];
-videos = load('data2stratis_OTB48.mat', 'seqnames');
+matfile = load('data2stratis_OTB48.mat', 'seqnames');
+videos = matfile.seqnames;
 
 counter = 1;
 oas_all = {};
