@@ -93,7 +93,7 @@ for vi = 1:numel(videos)
             oas(1, frame_counter) = max_ov;
         end
 
-        oas = oas(1, sum(gt_bboxes(:, 1:4), 2)>0);
+        oas = oas(sum(gt_bboxes(:, 1:4), 2)>0);
 
         %predBBoxFile = ['/home/zhenyang/Workspace/devel/project/vision/text_objseg_caffe/results/ILSVRC/' signiture '/' video '_query_' num2str(qi) '_prediction_rect.txt'];
         %dlmwrite(predBBoxFile, pred_boxes);
