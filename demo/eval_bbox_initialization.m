@@ -84,5 +84,5 @@ ovs = cat(2, oas_all{:});
 size(ovs)
 prec = mean(ovs)
 recall = sum(ovs > 0.5) / numel(ovs)
-save('first_target_IoU.mat', ovs);
+save('first_target_IoU.mat', 'ovs');
 
