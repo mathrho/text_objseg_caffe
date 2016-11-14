@@ -96,6 +96,7 @@ def inference(config):
         if not os.path.exists('./results/referit/results_seg_model/'+imname[:-4]):
             os.makedirs('./results/referit/results_seg_model/'+imname[:-4])
         fp = open('./results/referit/results_seg_model/'+imname[:-4]+'/query.txt', 'w')
+        fq = open('./results/referit/results_seg_model/'+imname[:-4]+'/IoU.txt', 'w')
         for imcrop_name, _, description in flat_query_dict[imname]:
             mask = load_gt_mask(config.mask_dir + imcrop_name + '.mat').astype(np.float32)
             labels = (mask > 0)
@@ -132,8 +133,10 @@ def inference(config):
             filename = './results/referit/results_seg_model/'+imname[:-4]+'/%s.jpg' % (imcrop_name,)
             plt.imsave(filename, np.array(predicts.astype(np.bool)), cmap=cm.gray)
             fp.write(description.encode('ascii','ignore')+'\n')
+            fq.write(str(this_IoU)+'\n')
 
-        fp.close() 
+        fp.close()
+        fq.close()
 
     # Print results
     print('Final results on the whole test set')
