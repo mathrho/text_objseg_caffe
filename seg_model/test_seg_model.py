@@ -8,6 +8,8 @@ import caffe
 import json
 from tqdm import tqdm
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import seg_model
 import test_config
 
@@ -83,7 +85,7 @@ def inference(config):
 
         imcrop_val[...] = processed_im.astype(np.float32) - seg_model.channel_mean
         imcrop_val_trans = imcrop_val.transpose((0, 3, 1, 2))
-        imcrop_val_trans = imcrop_val_trans[:, ::-1, :, :]
+        #imcrop_val_trans = imcrop_val_trans[:, ::-1, :, :]
 
         # Extract spatial features
         spatial_val = processing_tools.generate_spatial_batch(config.N,
@@ -91,6 +93,9 @@ def inference(config):
                                                               config.featmap_W)
         spatial_val = spatial_val.transpose((0, 3, 1, 2))
 
+        if not os.path.exists('./results/referit/results_seg_model/'+imname[:-4]):
+            os.makedirs('./results/referit/results_seg_model/'+imname[:-4])
+        fp = open('./results/referit/results_seg_model/'+imname[:-4]+'/query.txt', 'w')
         for imcrop_name, _, description in flat_query_dict[imname]:
             mask = load_gt_mask(config.mask_dir + imcrop_name + '.mat').astype(np.float32)
             labels = (mask > 0)
@@ -106,6 +111,7 @@ def inference(config):
             net.blobs['spatial'].data[...] = spatial_val
             net.blobs['label'].data[...] = processed_labels
 
+            #import ipdb; ipdb.set_trace()
             net.forward()
             upscores = net.blobs['upscores'].data[...].copy()
             upscores = np.squeeze(upscores)
@@ -122,6 +128,12 @@ def inference(config):
                 seg_correct[n_eval_iou] += (I/float(U) >= eval_seg_iou)
             seg_total += 1
 
+            # save the results
+            filename = './results/referit/results_seg_model/'+imname[:-4]+'/%s.jpg' % (imcrop_name,)
+            plt.imsave(filename, np.array(predicts.astype(np.bool)), cmap=cm.gray)
+            fp.write(description.encode('ascii','ignore')+'\n')
+
+        fp.close() 
 
     # Print results
     print('Final results on the whole test set')
