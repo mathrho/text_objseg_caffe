@@ -89,7 +89,7 @@ for v, videofile in enumerate(videofiles):
     print(video)
 
     # First, load queries
-    query = 'man with a backbag'
+    query = 'man in light pants'
 
     # Second, get gt box
     start_frame_id = 1 
