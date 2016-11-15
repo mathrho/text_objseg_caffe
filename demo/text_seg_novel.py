@@ -158,6 +158,7 @@ for v, videofile in enumerate(videofiles):
         filename = './results/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
+        import ipdb; ipdb.set_trace()
         scores[counter, 0] = upscores[upscores>score_thresh].sum()
 
 
