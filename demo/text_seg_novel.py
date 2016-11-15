@@ -96,7 +96,7 @@ for v, videofile in enumerate(videofiles):
     # Second, get gt box
     start_frame_id=start_frames[v]
     end_frame_id=end_frames[v]
-    num_frame = end_frame_id - start_frame_id + 1
+    num_frames = end_frame_id - start_frame_id + 1
 
     counter = 0
     results = np.zeros((num_frames, 4), np.int)
