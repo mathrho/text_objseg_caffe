@@ -80,6 +80,8 @@ net = caffe.Net('./lang_seg_model.prototxt', config.pretrained_model, caffe.TEST
 
 # Load vocabulary
 vocab_dict = text_processing.load_vocab_dict_from_file(config.vocab_file)
+start_frames = [1, 1]
+end_frames = [124, 143]
 
 ####################################################
 videofiles = ['video1', 'video2']
@@ -92,8 +94,9 @@ for v, videofile in enumerate(videofiles):
     query = 'man in light pants'
 
     # Second, get gt box
-    start_frame_id = 1 
-    num_frames = 100
+    start_frame_id=start_frames[v]
+    end_frame_id=end_frames[v]
+    num_frame = end_frame_id - start_frame_id + 1
 
     counter = 0
     results = np.zeros((num_frames, 4), np.int)
