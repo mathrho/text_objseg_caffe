@@ -182,6 +182,6 @@ for v, videofile in enumerate(videofiles):
         #plt.savefig('../ILSVRC/results_lang_seg/' +  video + '.png')
         #plt.close( )
 
-     np.savtxt('./results/results_lang_seg_sigmoid_thresh0.5/'+video+'_scores.txt')
+    np.savetxt('./results/results_lang_seg_sigmoid_thresh0.5/'+video+'_scores.txt', scores)
 
 
