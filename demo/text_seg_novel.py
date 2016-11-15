@@ -99,7 +99,7 @@ for v, videofile in enumerate(videofiles):
     num_frames = end_frame_id - start_frame_id + 1
 
     counter = 0
-    results = np.zeros((num_frames, 4), np.int)
+    scores = np.zeros((num_frames, 1))
     #for fi in range(start_frame_id, 1+start_frame_id):
     for fi in range(start_frame_id, num_frames+start_frame_id):
         im_file = './' + video + '/%04d.jpg' % (fi,)            
@@ -158,6 +158,9 @@ for v, videofile in enumerate(videofiles):
         filename = './results/results_lang_seg_sigmoid_thresh0.5/'+video+'/%04d.jpg' % (fi,)
         plt.imsave(filename, np.array(prediction), cmap=cm.gray)
 
+        scores[counter, 0] = upscores[upscores>score_thresh].sum()
+
+
         # Visualize the segmentation result
         #plt.figure(figsize=(12, 6))
         #plt.subplot(1, 2, 1)
@@ -178,3 +181,7 @@ for v, videofile in enumerate(videofiles):
 
         #plt.savefig('../ILSVRC/results_lang_seg/' +  video + '.png')
         #plt.close( )
+
+     np.savtxt('./results/results_lang_seg_sigmoid_thresh0.5/'+video+'_scores.txt')
+
+
