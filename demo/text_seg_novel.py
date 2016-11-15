@@ -86,8 +86,6 @@ videofiles = ['video1', 'video2']
 
 for v, videofile in enumerate(videofiles):
     video = videofile.split('/')[-1]
-    start_frame_id = frame_starts[v]
-    end_frame_id = frame_ends[v]
     print(video)
 
     # First, load queries
